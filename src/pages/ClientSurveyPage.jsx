@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Home, UploadCloud, Check } from 'lucide-react';
+import { clientSurveyAPI } from '@/lib/api';
+import { Home, UploadCloud, Check, Loader2 } from 'lucide-react';
 
 const surveyConfig = {
   welcome_title: "Hi there! Welcome to EstiMate",
@@ -115,6 +117,12 @@ const RadioToggle = ({ options, value, onValueChange, fieldId }) => (
 
 const ClientSurveyPage = () => {
     const { toast } = useToast();
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const [submitting, setSubmitting] = useState(false);
+    
+    const builderId = searchParams.get('builder');
+    
     const [formData, setFormData] = useState(() => {
         const initialData = {};
         surveyConfig.steps.forEach(step => {
@@ -131,12 +139,127 @@ const ClientSurveyPage = () => {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    const requiredFields = [
+      'full_name',
+      'phone_number', 
+      'property_type',
+      'home_age',
+      'tile_preference',
+      'include_tiles',
+      'toilet_move',
+      'wall_change'
+    ];
+
+    // Add measurement validation based on type
+    if (formData.measurement_type === 'direct') {
+      requiredFields.push('total_size');
+    }
+
+    const missingFields = requiredFields.filter(field => !formData[field]);
+    
+    if (missingFields.length > 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Please fill in all required fields',
+        description: 'Some required information is missing.'
+      });
+      return false;
+    }
+
+    if (!builderId) {
+      toast({
+        variant: 'destructive',
+        title: 'Invalid survey link',
+        description: 'Builder information is missing from the URL.'
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const mapFormDataToAPI = () => {
+    // Helper function to map form values to API expected values
+    const mapTilingLevel = (value) => {
+      const mapping = {
+        'budget': 'Budget',
+        'standard': 'Standard', 
+        'premium': 'Premium'
+      };
+      return mapping[value] || 'Standard';
+    };
+
+    const mapBathroomType = (value) => {
+      const mapping = {
+        'House or Unit': 'Master Bathroom',
+        'Apartment': 'Standard Bathroom',
+        'Other / Not sure': 'Standard Bathroom'
+      };
+      return mapping[value] || 'Standard Bathroom';
+    };
+
+    const mapHomeAge = (value) => {
+      const mapping = {
+        'Less than 10 years old': '0-10 years',
+        '10-30 years old': '10-20 years',
+        '30-50 years old': '20-50 years',
+        'Over 50 years old': '50+ years',
+        'Not sure': '10-20 years'
+      };
+      return mapping[value] || '10-20 years';
+    };
+
+    // Map the form data to match Laravel API structure
+    return {
+      client_name: formData.full_name,
+      client_phone: formData.phone_number,
+      total_area: formData.measurement_type === 'direct' ? parseFloat(formData.total_size) || null : null,
+      floor_length: null, // Not collected in this form
+      floor_width: null,  // Not collected in this form  
+      wall_height: null,  // Not collected in this form
+      bathroom_type: mapBathroomType(formData.property_type),
+      tiling_level: mapTilingLevel(formData.tile_preference),
+      design_style: 'Modern', // Default value
+      home_age_category: mapHomeAge(formData.home_age)
+    };
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    toast({
-      title: "📋 Preview Mode",
-      description: "This is a preview of your client survey. Form submissions are disabled.",
-    });
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setSubmitting(true);
+    
+    try {
+      const surveyData = mapFormDataToAPI();
+      console.log('Submitting survey data:', surveyData);
+      
+      const result = await clientSurveyAPI.submitClientSurvey(builderId, surveyData);
+      
+      console.log('Survey submitted successfully:', result);
+      
+      toast({
+        title: "Survey submitted successfully!",
+        description: "Thank you for providing your project details. The builder will contact you soon.",
+      });
+      
+      // Redirect to thank you page
+      navigate('/thank-you');
+      
+    } catch (error) {
+      console.error('Error submitting survey:', error);
+      toast({
+        variant: 'destructive',
+        title: "Error submitting survey",
+        description: error.message || "Please try again or contact the builder directly.",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
   
   const renderField = (field) => {
@@ -198,18 +321,46 @@ const ClientSurveyPage = () => {
                           <Input id="file-upload" name="file-upload" type="file" className="sr-only" multiple disabled />
                         </Label>
                       </div>
-                      <p className="text-xs leading-5 text-gray-600">Supports images and videos up to 20MB each</p>
+                      <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 20MB each</p>
                     </div>
                   </div>
+                  <p className="text-xs text-muted-foreground mt-2">File upload is currently disabled in this demo.</p>
                 </div>
               );
-            default: return null;
+            default:
+              return null;
           }
         })()}
       </div>
     );
   };
   
+  // Show error if no builder ID
+  if (!builderId) {
+    return (
+      <>
+        <Helmet>
+          <title>Invalid Survey Link - EstiMate Pro</title>
+        </Helmet>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+          <Card className="max-w-md w-full">
+            <CardHeader className="text-center">
+              <CardTitle className="text-red-600">Invalid Survey Link</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <p className="text-muted-foreground">
+                This survey link appears to be invalid or incomplete. Please check the link provided by your builder.
+              </p>
+              <Button onClick={() => navigate('/')} className="bg-orange-500 hover:bg-orange-600">
+                Go to Homepage
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <Helmet>
@@ -236,9 +387,18 @@ const ClientSurveyPage = () => {
                 </SurveyStep>
             ))}
             <div className="text-center pt-6">
-                <Button type="submit" size="lg" className="bg-orange-500 hover:bg-orange-600 w-full sm:w-auto" disabled>
-                    <Check className="mr-2 h-5 w-5" />
-                    {surveyConfig.submit_button_text}
+                <Button type="submit" size="lg" className="bg-orange-500 hover:bg-orange-600 w-full sm:w-auto" disabled={submitting}>
+                     {submitting ? (
+                       <>
+                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                         Submitting...
+                       </>
+                     ) : (
+                       <>
+                         <Check className="mr-2 h-5 w-5" />
+                         {surveyConfig.submit_button_text}
+                       </>
+                     )}
                 </Button>
                 <p className="text-xs text-muted-foreground mt-3">Please complete all required fields to submit your estimate request.</p>
             </div>

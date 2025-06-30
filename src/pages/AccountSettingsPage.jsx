@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabaseClient';
+import { profileAPI } from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Save, Edit, KeyRound, Building, User, Mail, Phone, Bell, CreditCard, XCircle } from 'lucide-react';
+import { Loader2, Save, Edit, KeyRound, Building, User, Mail, Phone, Bell, CreditCard, XCircle, Upload, Calendar, MapPin, Camera } from 'lucide-react';
 
 const InfoField = ({ icon, label, value }) => (
   <div>
@@ -25,30 +25,85 @@ const AccountSettingsPage = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef(null);
   
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [profile, setProfile] = useState({ full_name: '', business_name: '', phone_number: '' });
-  const [password, setPassword] = useState({ new_password: '', confirm_password: '' });
-  const [subscription, setSubscription] = useState({ status: '', trial_ends_at: null });
+  const [profile, setProfile] = useState({
+    first_name: '',
+    last_name: '',
+    business_name: '',
+    phone_number: '',
+    address: '',
+    city: '',
+    state: '',
+    zip_code: '',
+    country: '',
+    bio: '',
+    date_of_birth: '',
+    gender: '',
+    marital_status: '',
+    facebook_profile: '',
+    instagram_profile: '',
+    profile_picture: null
+  });
+  const [profilePictureFile, setProfilePictureFile] = useState(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState(null);
 
   const fetchProfile = useCallback(async () => {
-    if (!user) return;
+    if (!user?.id) return;
+    
     setLoading(true);
     try {
-      const { data, error } = await supabase.from('builders').select('full_name, business_name, phone_number, subscription_status, trial_ends_at').eq('id', user.id).single();
-      if (error) throw error;
-      if (data) {
+      console.log('Fetching profile for user ID:', user.id);
+      const profileData = await profileAPI.getProfile();
+      console.log('Fetched profile data:', profileData);
+      
+      if (profileData) {
         setProfile({
-          full_name: data.full_name || '',
-          business_name: data.business_name || '',
-          phone_number: data.phone_number || '',
+          first_name: profileData.first_name || '',
+          last_name: profileData.last_name || '',
+          business_name: profileData.business_name || '',
+          phone_number: profileData.phone_number || '',
+          address: profileData.address || '',
+          city: profileData.city || '',
+          state: profileData.state || '',
+          zip_code: profileData.zip_code || '',
+          country: profileData.country || '',
+          bio: profileData.bio || '',
+          date_of_birth: profileData.date_of_birth || '',
+          gender: profileData.gender || '',
+          marital_status: profileData.marital_status || '',
+          facebook_profile: profileData.facebook_profile || '',
+          instagram_profile: profileData.instagram_profile || '',
+          profile_picture: profileData.profile_picture
         });
-        setSubscription({
-            status: data.subscription_status,
-            trial_ends_at: data.trial_ends_at
+        
+        console.log('Profile state updated with:', {
+          first_name: profileData.first_name || '',
+          last_name: profileData.last_name || '',
+          business_name: profileData.business_name || '',
+          phone_number: profileData.phone_number || '',
+          address: profileData.address || '',
+          city: profileData.city || '',
+          state: profileData.state || '',
+          zip_code: profileData.zip_code || '',
+          country: profileData.country || '',
+          bio: profileData.bio || '',
+          date_of_birth: profileData.date_of_birth || '',
+          gender: profileData.gender || '',
+          marital_status: profileData.marital_status || '',
+          facebook_profile: profileData.facebook_profile || '',
+          instagram_profile: profileData.instagram_profile || '',
+          profile_picture: profileData.profile_picture
         });
+        
+        // Set profile picture preview if exists
+        if (profileData.profile_picture) {
+          setProfilePicturePreview(profileData.profile_picture);
+        }
       }
     } catch (error) {
+      console.error('Error fetching profile:', error);
       toast({ variant: 'destructive', title: 'Error fetching profile', description: error.message });
     } finally {
       setLoading(false);
@@ -63,45 +118,49 @@ const AccountSettingsPage = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      const { data: { user: authUser }, error: authError } = await supabase.auth.updateUser({
-        data: { full_name: profile.full_name }
-      });
-      if(authError) throw authError;
+      // Prepare profile data for Laravel API
+      const profileData = {
+        user_id: user.id,
+        first_name: profile.first_name || '',
+        last_name: profile.last_name || '',
+        business_name: profile.business_name || '',
+        phone_number: profile.phone_number || '',
+        address: profile.address || '',
+        city: profile.city || '',
+        state: profile.state || '',
+        zip_code: profile.zip_code || '',
+        country: profile.country || '',
+        bio: profile.bio || '',
+        date_of_birth: profile.date_of_birth || '',
+        gender: profile.gender || '',
+        marital_status: profile.marital_status || '',
+        facebook_profile: profile.facebook_profile || '',
+        instagram_profile: profile.instagram_profile || '',
+      };
 
-      const { error: dbError } = await supabase.from('builders').update({
-        full_name: profile.full_name,
-        business_name: profile.business_name,
-        phone_number: profile.phone_number,
-      }).eq('id', user.id);
-      if(dbError) throw dbError;
+      console.log('User ID being sent:', user.id);
+      console.log('Submitting profile data:', profileData);
+      console.log('Profile picture file:', profilePictureFile);
+
+      // Update profile using Laravel API
+      const updatedProfile = await profileAPI.updateProfile(profileData, profilePictureFile);
+      
+      console.log('Received updated profile:', updatedProfile);
+
+      // Refresh profile data from server to ensure we have the latest data
+      console.log('Refreshing profile data from server...');
+      await fetchProfile();
+
+      // Clear profile picture file state
+      if (profilePictureFile) {
+        setProfilePictureFile(null);
+      }
       
       toast({ title: 'Profile updated successfully!' });
       setIsEditingProfile(false);
     } catch (error) {
+      console.error('Profile update error:', error);
       toast({ variant: 'destructive', title: 'Error updating profile', description: error.message });
-    } finally {
-      setSaving(false);
-    }
-  };
-  
-  const handlePasswordUpdate = async (e) => {
-    e.preventDefault();
-    if (password.new_password !== password.confirm_password) {
-      toast({ variant: 'destructive', title: 'Passwords do not match.' });
-      return;
-    }
-    if (password.new_password.length < 6) {
-      toast({ variant: 'destructive', title: 'Password must be at least 6 characters long.' });
-      return;
-    }
-    setSaving(true);
-    try {
-      const { error } = await supabase.auth.updateUser({ password: password.new_password });
-      if (error) throw error;
-      toast({ title: 'Password updated successfully!' });
-      setPassword({ new_password: '', confirm_password: '' });
-    } catch (error) {
-      toast({ variant: 'destructive', title: 'Error updating password', description: error.message });
     } finally {
       setSaving(false);
     }
@@ -110,6 +169,20 @@ const AccountSettingsPage = () => {
   const handleInputChange = (e, setStateFunc) => {
     const { id, value } = e.target;
     setStateFunc(prev => ({...prev, [id]: value}));
+  };
+
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePictureFile(file);
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setProfilePicturePreview(previewUrl);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
   };
 
   const handleFeatureClick = () => toast({ title: "🚧 Feature not implemented yet!" });
@@ -129,7 +202,7 @@ const AccountSettingsPage = () => {
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Profile Information</CardTitle>
-                <CardDescription>Keep your business and contact details up to date.</CardDescription>
+                <CardDescription>Keep your personal and business details up to date.</CardDescription>
               </div>
               <Button variant="outline" onClick={() => setIsEditingProfile(!isEditingProfile)}>
                 {isEditingProfile ? <XCircle className="mr-2 h-4 w-4" /> : <Edit className="mr-2 h-4 w-4" />}
@@ -137,28 +210,187 @@ const AccountSettingsPage = () => {
               </Button>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleProfileUpdate}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={handleProfileUpdate} className="space-y-6">
+                {/* Profile Picture Section */}
+                <div className="flex items-center space-x-6">
+                  <div className="relative">
+                    <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                      {profilePicturePreview ? (
+                        <img src={profilePicturePreview} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="h-12 w-12 text-gray-400" />
+                      )}
+                    </div>
+                    {isEditingProfile && (
+                      <button
+                        type="button"
+                        onClick={triggerFileInput}
+                        className="absolute -bottom-2 -right-2 bg-orange-500 text-white rounded-full p-2 hover:bg-orange-600 transition-colors"
+                      >
+                        <Camera className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium">{profile.first_name} {profile.last_name}</h3>
+                    <p className="text-sm text-gray-500">{user?.email}</p>
+                    <p className="text-sm text-gray-500">{user?.role?.name} Account</p>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfilePictureChange}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Personal Information */}
+                <div>
+                  <h4 className="text-md font-medium mb-4">Personal Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {isEditingProfile ? (
+                      <>
+                        <div>
+                          <Label htmlFor="first_name">First Name</Label>
+                          <Input id="first_name" value={profile.first_name} onChange={(e) => handleInputChange(e, setProfile)} placeholder="John" />
+                        </div>
+                        <div>
+                          <Label htmlFor="last_name">Last Name</Label>
+                          <Input id="last_name" value={profile.last_name} onChange={(e) => handleInputChange(e, setProfile)} placeholder="Doe" />
+                        </div>
+                        <div>
+                          <Label htmlFor="email">Email Address</Label>
+                          <Input id="email" value={user?.email} disabled className="bg-gray-50" />
+                        </div>
+                        <div>
+                          <Label htmlFor="phone_number">Phone Number</Label>
+                          <Input id="phone_number" value={profile.phone_number} onChange={(e) => handleInputChange(e, setProfile)} placeholder="+1 (555) 123-4567" />
+                        </div>
+                        <div>
+                          <Label htmlFor="date_of_birth">Date of Birth</Label>
+                          <Input id="date_of_birth" type="date" value={profile.date_of_birth} onChange={(e) => handleInputChange(e, setProfile)} />
+                        </div>
+                        <div>
+                          <Label htmlFor="gender">Gender</Label>
+                          <Input id="gender" value={profile.gender} onChange={(e) => handleInputChange(e, setProfile)} placeholder="Male/Female/Other" />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <InfoField icon={<User className="h-4 w-4 text-muted-foreground" />} label="First Name" value={profile.first_name} />
+                        <InfoField icon={<User className="h-4 w-4 text-muted-foreground" />} label="Last Name" value={profile.last_name} />
+                        <InfoField icon={<Mail className="h-4 w-4 text-muted-foreground" />} label="Email Address" value={user?.email} />
+                        <InfoField icon={<Phone className="h-4 w-4 text-muted-foreground" />} label="Phone Number" value={profile.phone_number} />
+                        <InfoField icon={<Calendar className="h-4 w-4 text-muted-foreground" />} label="Date of Birth" value={profile.date_of_birth} />
+                        <InfoField icon={<User className="h-4 w-4 text-muted-foreground" />} label="Gender" value={profile.gender} />
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Business Information */}
+                <div>
+                  <h4 className="text-md font-medium mb-4">Business Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {isEditingProfile ? (
                     <>
-                      <div><Label htmlFor="business_name">Business Name</Label><Input id="business_name" value={profile.business_name} onChange={(e) => handleInputChange(e, setProfile)} placeholder="Builder Co. Construction" /></div>
-                      <div><Label htmlFor="full_name">Your Name</Label><Input id="full_name" value={profile.full_name} onChange={(e) => handleInputChange(e, setProfile)} placeholder="John Builder" /></div>
-                      <div><Label htmlFor="email">Email Address</Label><Input id="email" value={user.email} disabled /></div>
-                      <div><Label htmlFor="phone_number">Phone Number</Label><Input id="phone_number" value={profile.phone_number} onChange={(e) => handleInputChange(e, setProfile)} placeholder="+1 (555) 123-4567" /></div>
+                        <div className="md:col-span-2">
+                          <Label htmlFor="business_name">Business Name</Label>
+                          <Input id="business_name" value={profile.business_name} onChange={(e) => handleInputChange(e, setProfile)} placeholder="Builder Co. Construction" />
+                        </div>
+                        <div className="md:col-span-2">
+                          <Label htmlFor="bio">Bio/Description</Label>
+                          <textarea 
+                            id="bio" 
+                            value={profile.bio} 
+                            onChange={(e) => handleInputChange(e, setProfile)} 
+                            placeholder="Tell us about yourself and your business..."
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                            rows={3}
+                          />
+                        </div>
                     </>
                   ) : (
                     <>
                       <InfoField icon={<Building className="h-4 w-4 text-muted-foreground" />} label="Business Name" value={profile.business_name} />
-                      <InfoField icon={<User className="h-4 w-4 text-muted-foreground" />} label="Your Name" value={profile.full_name} />
-                      <InfoField icon={<Mail className="h-4 w-4 text-muted-foreground" />} label="Email Address" value={user.email} />
-                      <InfoField icon={<Phone className="h-4 w-4 text-muted-foreground" />} label="Phone Number" value={profile.phone_number} />
+                        <div className="md:col-span-2">
+                          <InfoField icon={<User className="h-4 w-4 text-muted-foreground" />} label="Bio" value={profile.bio} />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Address Information */}
+                <div>
+                  <h4 className="text-md font-medium mb-4">Address Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {isEditingProfile ? (
+                      <>
+                        <div className="md:col-span-2">
+                          <Label htmlFor="address">Street Address</Label>
+                          <Input id="address" value={profile.address} onChange={(e) => handleInputChange(e, setProfile)} placeholder="123 Main Street" />
+                        </div>
+                        <div>
+                          <Label htmlFor="city">City</Label>
+                          <Input id="city" value={profile.city} onChange={(e) => handleInputChange(e, setProfile)} placeholder="New York" />
+                        </div>
+                        <div>
+                          <Label htmlFor="state">State/Province</Label>
+                          <Input id="state" value={profile.state} onChange={(e) => handleInputChange(e, setProfile)} placeholder="NY" />
+                        </div>
+                        <div>
+                          <Label htmlFor="zip_code">ZIP/Postal Code</Label>
+                          <Input id="zip_code" value={profile.zip_code} onChange={(e) => handleInputChange(e, setProfile)} placeholder="10001" />
+                        </div>
+                        <div>
+                          <Label htmlFor="country">Country</Label>
+                          <Input id="country" value={profile.country} onChange={(e) => handleInputChange(e, setProfile)} placeholder="USA" />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="md:col-span-2">
+                          <InfoField icon={<MapPin className="h-4 w-4 text-muted-foreground" />} label="Address" value={profile.address} />
+                        </div>
+                        <InfoField icon={<MapPin className="h-4 w-4 text-muted-foreground" />} label="City" value={profile.city} />
+                        <InfoField icon={<MapPin className="h-4 w-4 text-muted-foreground" />} label="State" value={profile.state} />
+                        <InfoField icon={<MapPin className="h-4 w-4 text-muted-foreground" />} label="ZIP Code" value={profile.zip_code} />
+                        <InfoField icon={<MapPin className="h-4 w-4 text-muted-foreground" />} label="Country" value={profile.country} />
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Social Media */}
+                <div>
+                  <h4 className="text-md font-medium mb-4">Social Media</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {isEditingProfile ? (
+                      <>
+                        <div>
+                          <Label htmlFor="facebook_profile">Facebook Profile</Label>
+                          <Input id="facebook_profile" value={profile.facebook_profile} onChange={(e) => handleInputChange(e, setProfile)} placeholder="https://facebook.com/yourprofile" />
+                        </div>
+                        <div>
+                          <Label htmlFor="instagram_profile">Instagram Profile</Label>
+                          <Input id="instagram_profile" value={profile.instagram_profile} onChange={(e) => handleInputChange(e, setProfile)} placeholder="https://instagram.com/yourprofile" />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <InfoField icon={<Phone className="h-4 w-4 text-muted-foreground" />} label="Facebook" value={profile.facebook_profile} />
+                        <InfoField icon={<Phone className="h-4 w-4 text-muted-foreground" />} label="Instagram" value={profile.instagram_profile} />
                     </>
                   )}
+                  </div>
                 </div>
+
                 {isEditingProfile && (
-                  <div className="mt-6">
+                  <div className="pt-6 border-t">
                     <Button type="submit" disabled={saving} className="bg-orange-500 hover:bg-orange-600">
-                      {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />} Save Changes
+                      {saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : <><Save className="mr-2 h-4 w-4" /> Save Changes</>}
                     </Button>
                   </div>
                 )}
@@ -166,50 +398,48 @@ const AccountSettingsPage = () => {
             </CardContent>
           </Card>
 
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <Card>
              <CardHeader>
-                <CardTitle>Change Password</CardTitle>
-                <CardDescription>Update your password regularly to keep your account secure.</CardDescription>
+                <CardTitle>Account Security</CardTitle>
+                <CardDescription>Manage your password and security settings.</CardDescription>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handlePasswordUpdate} className="space-y-4 max-w-sm">
+              <CardContent className="space-y-4">
+                <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                  <div className="flex items-center">
+                    <KeyRound className="h-5 w-5 text-orange-600 mr-2" />
                   <div>
-                    <Label htmlFor="new_password">New Password</Label>
-                    <div className="relative"><KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input type="password" id="new_password" value={password.new_password} onChange={(e) => handleInputChange(e, setPassword)} className="pl-9" /></div>
+                      <p className="text-sm font-medium text-gray-800">Password Protection</p>
+                      <p className="text-xs text-muted-foreground">Last changed: Not available</p>
+                    </div>
                   </div>
-                   <div>
-                    <Label htmlFor="confirm_password">Confirm New Password</Label>
-                     <div className="relative"><KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input type="password" id="confirm_password" value={password.confirm_password} onChange={(e) => handleInputChange(e, setPassword)} className="pl-9" /></div>
                   </div>
-                  <Button type="submit" disabled={saving} className="bg-orange-500 hover:bg-orange-600">
-                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <KeyRound className="mr-2 h-4 w-4" />} Update Password
+                <Button variant="outline" className="w-full justify-start" onClick={handleFeatureClick}>
+                  <KeyRound className="mr-2 h-4 w-4"/> Change Password
+                </Button>
+                <Button variant="outline" className="w-full justify-start" onClick={handleFeatureClick}>
+                  <Bell className="mr-2 h-4 w-4"/> Two-Factor Authentication
                   </Button>
-                </form>
               </CardContent>
           </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Card>
-              <CardHeader><CardTitle>Billing & Subscription</CardTitle><CardDescription>Manage your payment details and subscription plan.</CardDescription></CardHeader>
+              <CardHeader>
+                <CardTitle>Subscription & Billing</CardTitle>
+                <CardDescription>Manage your subscription plan and billing information.</CardDescription>
+              </CardHeader>
               <CardContent className="space-y-4">
                 <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                  <p className="text-sm font-medium text-gray-800">Current Plan: <span className="font-bold text-orange-600">{subscription.status === 'trial' ? 'Trial Period' : 'Pro Builder Monthly'}</span></p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {subscription.status === 'trial' ? `Trial ends on: ${new Date(subscription.trial_ends_at).toLocaleDateString()}` : `Next billing date: July 16, 2025`}
-                  </p>
-                   <p className="text-xs text-muted-foreground mt-1">Price: {subscription.status === 'trial' ? '$0.00/month' : '$49.00/month'}</p>
+                  <p className="text-sm font-medium text-gray-800">Current Plan: <span className="font-bold text-orange-600">Trial Period</span></p>
+                  <p className="text-xs text-muted-foreground mt-1">90-day trial active</p>
+                  <p className="text-xs text-muted-foreground mt-1">Price: $0.00/month</p>
                 </div>
-                <Button variant="outline" className="w-full justify-start" onClick={handleFeatureClick}><CreditCard className="mr-2 h-4 w-4"/> Manage Payment Methods</Button>
-                <Button variant="outline" className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200" onClick={handleFeatureClick}><XCircle className="mr-2 h-4 w-4"/> Cancel Subscription</Button>
-              </CardContent>
-            </Card>
-
-             <Card>
-              <CardHeader><CardTitle>Notification Preferences</CardTitle><CardDescription>Choose how you receive updates and alerts.</CardDescription></CardHeader>
-              <CardContent className="space-y-3">
-                  <Button variant="outline" className="w-full justify-between" onClick={handleFeatureClick}>Email Notifications for New Leads <span className="text-muted-foreground text-xs flex items-center"><Bell className="mr-1 h-3 w-3" />Configure</span></Button>
-                  <Button variant="outline" className="w-full justify-between" onClick={handleFeatureClick}>SMS Alerts for Urgent Updates <span className="text-muted-foreground text-xs flex items-center"><Bell className="mr-1 h-3 w-3" />Configure</span></Button>
-                  <Button variant="outline" className="w-full justify-between" onClick={handleFeatureClick}>In-App Project Update Summaries <span className="text-muted-foreground text-xs flex items-center"><Bell className="mr-1 h-3 w-3" />Configure</span></Button>
+                <Button variant="outline" className="w-full justify-start" onClick={handleFeatureClick}>
+                  <CreditCard className="mr-2 h-4 w-4"/> Upgrade Plan
+                </Button>
+                <Button variant="outline" className="w-full justify-start" onClick={handleFeatureClick}>
+                  <Bell className="mr-2 h-4 w-4"/> Billing History
+                </Button>
               </CardContent>
             </Card>
           </div>

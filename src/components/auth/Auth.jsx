@@ -25,6 +25,8 @@ export function Auth() {
   const [signUpPassword, setSignUpPassword] = useState('');
   const [signUpFullName, setSignUpFullName] = useState('');
 
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [unverifiedUser, setUnverifiedUser] = useState(null);
   const [resendingVerification, setResendingVerification] = useState(false);
@@ -131,11 +133,37 @@ export function Auth() {
     }
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      await authAPI.forgotPassword(forgotPasswordEmail);
+      toast({ 
+        title: 'Password reset email sent!', 
+        description: 'Please check your email for the password reset link.' 
+      });
+      
+      // Clear form
+      setForgotPasswordEmail('');
+      
+    } catch (error) {
+      toast({ 
+        variant: 'destructive', 
+        title: 'Error', 
+        description: error.message 
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Tabs defaultValue="login" className="w-full max-w-md">
-      <TabsList className="grid w-full grid-cols-2">
+      <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="login">Login</TabsTrigger>
         <TabsTrigger value="signup">Sign Up</TabsTrigger>
+        <TabsTrigger value="forgot">Forgot Password</TabsTrigger>
       </TabsList>
       <TabsContent value="login">
         <Card>
@@ -221,6 +249,34 @@ export function Auth() {
               </div>
               <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600" disabled={loading}>
                 {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating account...</> : 'Create Account'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </TabsContent>
+      <TabsContent value="forgot">
+        <Card>
+          <CardHeader>
+            <CardTitle>Forgot Password</CardTitle>
+            <CardDescription>
+              Enter your email address and we'll send you a password reset link.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="forgot-email">Email</Label>
+                <Input 
+                  id="forgot-email" 
+                  type="email" 
+                  placeholder="m@example.com" 
+                  value={forgotPasswordEmail} 
+                  onChange={(e) => setForgotPasswordEmail(e.target.value)} 
+                  required 
+                />
+              </div>
+              <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600" disabled={loading}>
+                {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending...</> : 'Send Reset Link'}
               </Button>
             </form>
           </CardContent>

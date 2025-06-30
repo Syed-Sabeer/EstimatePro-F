@@ -67,12 +67,12 @@ const Header = () => {
             </>
           ) : (
             <>
-              <Link to="/auth">
-                <Button variant="ghost" size="lg">Login</Button>
-              </Link>
-              <Link to="/auth">
-                <Button className="bg-orange-500 hover:bg-orange-600" size="lg">Sign Up</Button>
-              </Link>
+          <Link to="/auth">
+            <Button variant="ghost" size="lg">Login</Button>
+          </Link>
+          <Link to="/auth">
+            <Button className="bg-orange-500 hover:bg-orange-600" size="lg">Sign Up</Button>
+          </Link>
             </>
           )}
         </div>

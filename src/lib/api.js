@@ -124,7 +124,7 @@ class ApiService {
     }
   }
 
-  // Get current user
+  // Get current user with profile
   async getCurrentUser() {
     try {
       const response = await fetch(`${this.baseURL}/current/user`, {
@@ -136,9 +136,157 @@ class ApiService {
         throw new Error('Failed to fetch user data');
       }
 
-      return await response.json();
+      const data = await response.json();
+      return data.currentUser; // Return the currentUser object from Laravel response
     } catch (error) {
       throw new Error(error.message || 'Failed to fetch user data');
+    }
+  }
+
+  // Get user profile
+  async getProfile() {
+    try {
+      const response = await fetch(`${this.baseURL}/profile`, {
+        method: 'GET',
+        headers: this.getHeaders(true),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile data');
+      }
+
+      const data = await response.json();
+      return data.profile; // Return the profile object from Laravel response
+    } catch (error) {
+      throw new Error(error.message || 'Failed to fetch profile data');
+    }
+  }
+
+  // Get profile by ID
+  async getProfileById(userId) {
+    try {
+      const response = await fetch(`${this.baseURL}/profile/${userId}`, {
+        method: 'GET',
+        headers: this.getHeaders(true),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile data');
+      }
+
+      const data = await response.json();
+      return data.profile; // Return the profile object from Laravel response
+    } catch (error) {
+      throw new Error(error.message || 'Failed to fetch profile data');
+    }
+  }
+
+  // Store/Update profile
+  async updateProfile(profileData, profilePicture = null) {
+    try {
+      console.log('Updating profile with data:', profileData);
+      console.log('Profile picture:', profilePicture);
+
+      let body;
+      let headers;
+
+      if (profilePicture) {
+        // Handle multipart form data for profile picture
+        const formData = new FormData();
+        
+        // Add all profile fields to FormData
+        Object.keys(profileData).forEach(key => {
+          if (profileData[key] !== null && profileData[key] !== undefined && profileData[key] !== '') {
+            formData.append(key, profileData[key]);
+          }
+        });
+        
+        // Add profile picture
+        formData.append('profile_picture', profilePicture);
+        
+        body = formData;
+        // Don't set Content-Type header for FormData, let browser set it automatically
+        headers = {
+          'Accept': 'application/json',
+        };
+        
+        if (this.token) {
+          headers['Authorization'] = `Bearer ${this.token}`;
+        }
+      } else {
+        // Regular JSON request - remove empty fields
+        const cleanedData = {};
+        Object.keys(profileData).forEach(key => {
+          if (profileData[key] !== null && profileData[key] !== undefined && profileData[key] !== '') {
+            cleanedData[key] = profileData[key];
+          }
+        });
+        
+        body = JSON.stringify(cleanedData);
+        headers = this.getHeaders(true);
+        console.log('Sending JSON data:', cleanedData);
+      }
+
+      const response = await fetch(`${this.baseURL}/profile`, {
+        method: 'POST',
+        headers: headers,
+        body: body,
+      });
+
+      console.log('Profile update response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Profile update error:', errorData);
+        throw new Error(errorData.message || errorData.error || 'Failed to update profile');
+      }
+
+      const data = await response.json();
+      console.log('Profile update success:', data);
+      return data.profile; // Return the updated profile object
+    } catch (error) {
+      console.error('Profile update failed:', error);
+      throw new Error(error.message || 'Failed to update profile');
+    }
+  }
+
+  // Forgot password API
+  async forgotPassword(email) {
+    try {
+      const response = await fetch(`${this.baseURL}/forgot-password`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to send password reset email');
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message || 'Failed to send password reset email');
+    }
+  }
+
+  // Reset password API
+  async resetPassword(resetData) {
+    try {
+      const response = await fetch(`${this.baseURL}/reset-password`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify(resetData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to reset password');
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message || 'Failed to reset password');
     }
   }
 
@@ -183,6 +331,189 @@ class ApiService {
       throw new Error(error.message || 'Failed to send verification email');
     }
   }
+
+  // ==================== BUILDER PRICING APIs ====================
+  
+  // Get builder's pricings
+  async getBuilderPricings() {
+    try {
+      const response = await fetch(`${this.baseURL}/builder-pricing`, {
+        method: 'GET',
+        headers: this.getHeaders(true),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch builder pricings');
+      }
+
+      const data = await response.json();
+      return data.builderPricings;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to fetch builder pricings');
+    }
+  }
+
+  // Store builder pricing
+  async storeBuilderPricing(pricingData) {
+    try {
+      const response = await fetch(`${this.baseURL}/builder-pricing`, {
+        method: 'POST',
+        headers: this.getHeaders(true),
+        body: JSON.stringify(pricingData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to store builder pricing');
+      }
+
+      const data = await response.json();
+      return data.builderPricing;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to store builder pricing');
+    }
+  }
+
+  // Update builder pricing
+  async updateBuilderPricing(id, pricingData) {
+    try {
+      const response = await fetch(`${this.baseURL}/builder-pricing/${id}`, {
+        method: 'PUT',
+        headers: this.getHeaders(true),
+        body: JSON.stringify(pricingData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update builder pricing');
+      }
+
+      const data = await response.json();
+      return data.builderPricing;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to update builder pricing');
+    }
+  }
+
+  // Delete builder pricing
+  async deleteBuilderPricing(id) {
+    try {
+      const response = await fetch(`${this.baseURL}/builder-pricing/${id}`, {
+        method: 'DELETE',
+        headers: this.getHeaders(true),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete builder pricing');
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message || 'Failed to delete builder pricing');
+    }
+  }
+
+  // ==================== CLIENT SURVEY APIs ====================
+  
+  // Submit client survey (public API)
+  async submitClientSurvey(builderId, surveyData) {
+    try {
+      const response = await fetch(`${this.baseURL}/client-survey/store/${builderId}`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify(surveyData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to submit client survey');
+      }
+
+      const data = await response.json();
+      return data.survey;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to submit client survey');
+    }
+  }
+
+  // Get builder's client surveys
+  async getClientSurveys() {
+    try {
+      const response = await fetch(`${this.baseURL}/client-surveys`, {
+        method: 'GET',
+        headers: this.getHeaders(true),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch client surveys');
+      }
+
+      const data = await response.json();
+      return data.buildersClientSurveys;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to fetch client surveys');
+    }
+  }
+
+  // Get single client survey detail
+  async getClientSurveyDetail(id) {
+    try {
+      const response = await fetch(`${this.baseURL}/client-surveys/show/${id}`, {
+        method: 'GET',
+        headers: this.getHeaders(true),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch client survey details');
+      }
+
+      const data = await response.json();
+      return data.clientSurvey;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to fetch client survey details');
+    }
+  }
+
+  // Update client survey status
+  async updateClientSurveyStatus(id, status) {
+    try {
+      const response = await fetch(`${this.baseURL}/client-surveys/update-status/${id}`, {
+        method: 'POST',
+        headers: this.getHeaders(true),
+        body: JSON.stringify({ status }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update survey status');
+      }
+
+      const data = await response.json();
+      return data.survey;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to update survey status');
+    }
+  }
+
+  // Delete client survey
+  async deleteClientSurvey(id) {
+    try {
+      const response = await fetch(`${this.baseURL}/client-surveys/${id}`, {
+        method: 'DELETE',
+        headers: this.getHeaders(true),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete client survey');
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message || 'Failed to delete client survey');
+    }
+  }
 }
 
 // Create and export a singleton instance
@@ -196,6 +527,29 @@ export const authAPI = {
   getCurrentUser: () => apiService.getCurrentUser(),
   refreshToken: () => apiService.refreshToken(),
   sendVerificationEmail: () => apiService.sendVerificationEmail(),
+  forgotPassword: (email) => apiService.forgotPassword(email),
+  resetPassword: (resetData) => apiService.resetPassword(resetData),
+};
+
+export const profileAPI = {
+  getProfile: () => apiService.getProfile(),
+  getProfileById: (userId) => apiService.getProfileById(userId),
+  updateProfile: (profileData, profilePicture = null) => apiService.updateProfile(profileData, profilePicture),
+};
+
+export const builderPricingAPI = {
+  getBuilderPricings: () => apiService.getBuilderPricings(),
+  storeBuilderPricing: (pricingData) => apiService.storeBuilderPricing(pricingData),
+  updateBuilderPricing: (id, pricingData) => apiService.updateBuilderPricing(id, pricingData),
+  deleteBuilderPricing: (id) => apiService.deleteBuilderPricing(id),
+};
+
+export const clientSurveyAPI = {
+  submitClientSurvey: (builderId, surveyData) => apiService.submitClientSurvey(builderId, surveyData),
+  getClientSurveys: () => apiService.getClientSurveys(),
+  getClientSurveyDetail: (id) => apiService.getClientSurveyDetail(id),
+  updateClientSurveyStatus: (id, status) => apiService.updateClientSurveyStatus(id, status),
+  deleteClientSurvey: (id) => apiService.deleteClientSurvey(id),
 };
 
 export default apiService; 
