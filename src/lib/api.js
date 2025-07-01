@@ -331,6 +331,181 @@ class ApiService {
       throw new Error(error.message || 'Failed to send verification email');
     }
   }
+
+  // Client Survey APIs
+  // Submit client survey
+  async submitClientSurvey(builderId, surveyData) {
+    try {
+      const response = await fetch(`${this.baseURL}/client-surveys/store/${builderId}`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify(surveyData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || errorData.error || 'Failed to submit survey');
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message || 'Failed to submit survey');
+    }
+  }
+
+  // Get client surveys for authenticated user
+  async getClientSurveys() {
+    try {
+      const response = await fetch(`${this.baseURL}/client-surveys`, {
+        method: 'GET',
+        headers: this.getHeaders(true),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch client surveys');
+      }
+
+      const data = await response.json();
+      return data.buildersClientSurveys || [];
+    } catch (error) {
+      throw new Error(error.message || 'Failed to fetch client surveys');
+    }
+  }
+
+  // Get specific client survey detail
+  async getClientSurveyDetail(surveyId) {
+    try {
+      const response = await fetch(`${this.baseURL}/client-surveys/${surveyId}`, {
+        method: 'GET',
+        headers: this.getHeaders(true),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch survey details');
+      }
+
+      const data = await response.json();
+      return data.clientSurvey;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to fetch survey details');
+    }
+  }
+
+  // Update client survey status
+  async updateClientSurveyStatus(surveyId, status) {
+    try {
+      const response = await fetch(`${this.baseURL}/client-surveys/update-status/${surveyId}`, {
+        method: 'POST',
+        headers: this.getHeaders(true),
+        body: JSON.stringify({ status }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || errorData.error || 'Failed to update survey status');
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message || 'Failed to update survey status');
+    }
+  }
+
+  // Delete client survey
+  async deleteClientSurvey(surveyId) {
+    try {
+      const response = await fetch(`${this.baseURL}/client-surveys/${surveyId}`, {
+        method: 'DELETE',
+        headers: this.getHeaders(true),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete survey');
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message || 'Failed to delete survey');
+    }
+  }
+
+  // Builder Pricing APIs
+  // Get builder pricings
+  async getBuilderPricings() {
+    try {
+      const response = await fetch(`${this.baseURL}/builder-pricings`, {
+        method: 'GET',
+        headers: this.getHeaders(true),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch builder pricings');
+      }
+
+      const data = await response.json();
+      return data.builderPricings || [];
+    } catch (error) {
+      throw new Error(error.message || 'Failed to fetch builder pricings');
+    }
+  }
+
+  // Store new builder pricing
+  async storeBuilderPricing(pricingData) {
+    try {
+      const response = await fetch(`${this.baseURL}/builder-pricings`, {
+        method: 'POST',
+        headers: this.getHeaders(true),
+        body: JSON.stringify(pricingData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || errorData.error || 'Failed to store pricing');
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message || 'Failed to store pricing');
+    }
+  }
+
+  // Update builder pricing
+  async updateBuilderPricing(pricingId, pricingData) {
+    try {
+      const response = await fetch(`${this.baseURL}/builder-pricings/${pricingId}`, {
+        method: 'PUT',
+        headers: this.getHeaders(true),
+        body: JSON.stringify(pricingData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || errorData.error || 'Failed to update pricing');
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message || 'Failed to update pricing');
+    }
+  }
+
+  // Delete builder pricing
+  async deleteBuilderPricing(pricingId) {
+    try {
+      const response = await fetch(`${this.baseURL}/builder-pricings/${pricingId}`, {
+        method: 'DELETE',
+        headers: this.getHeaders(true),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete pricing');
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message || 'Failed to delete pricing');
+    }
+  }
 }
 
 // Create and export a singleton instance
@@ -352,6 +527,21 @@ export const profileAPI = {
   getProfile: () => apiService.getProfile(),
   getProfileById: (userId) => apiService.getProfileById(userId),
   updateProfile: (profileData, profilePicture = null) => apiService.updateProfile(profileData, profilePicture),
+};
+
+export const clientSurveyAPI = {
+  submitClientSurvey: (builderId, surveyData) => apiService.submitClientSurvey(builderId, surveyData),
+  getClientSurveys: () => apiService.getClientSurveys(),
+  getClientSurveyDetail: (surveyId) => apiService.getClientSurveyDetail(surveyId),
+  updateClientSurveyStatus: (surveyId, status) => apiService.updateClientSurveyStatus(surveyId, status),
+  deleteClientSurvey: (surveyId) => apiService.deleteClientSurvey(surveyId),
+};
+
+export const builderPricingAPI = {
+  getBuilderPricings: () => apiService.getBuilderPricings(),
+  storeBuilderPricing: (pricingData) => apiService.storeBuilderPricing(pricingData),
+  updateBuilderPricing: (pricingId, pricingData) => apiService.updateBuilderPricing(pricingId, pricingData),
+  deleteBuilderPricing: (pricingId) => apiService.deleteBuilderPricing(pricingId),
 };
 
 export default apiService; 
