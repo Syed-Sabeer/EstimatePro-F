@@ -47,18 +47,30 @@ const RecentSurveysTable = ({ surveys, loading, onStatusUpdate, onDelete }) => {
   const navigate = useNavigate();
   const [updatingStatus, setUpdatingStatus] = useState({});
   
+  const statusOptions = [
+    'New', 
+    'Contacted', 
+    'Site Visit Done', 
+    'Quote Sent', 
+    'Quote Accepted', 
+    'Quote Unsuccessful', 
+    'Client Not Interested', 
+    'Client Uncontactable'
+  ];
+
   const getStatusBadge = (status) => {
     switch (status) {
       case 'New': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'Contacted': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'In Progress': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'Completed': return 'bg-green-100 text-green-800 border-green-200';
-      case 'Cancelled': return 'bg-red-100 text-red-800 border-red-200';
+      case 'Site Visit Done': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'Quote Sent': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'Quote Accepted': return 'bg-green-100 text-green-800 border-green-200';
+      case 'Quote Unsuccessful': return 'bg-red-100 text-red-800 border-red-200';
+      case 'Client Not Interested': return 'bg-red-100 text-red-800 border-red-200';
+      case 'Client Uncontactable': return 'bg-gray-100 text-gray-800 border-gray-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
-
-  const statusOptions = ['New', 'Contacted', 'In Progress', 'Completed', 'Cancelled'];
 
   const handleStatusChange = async (surveyId, newStatus) => {
     setUpdatingStatus(prev => ({ ...prev, [surveyId]: true }));
@@ -215,7 +227,7 @@ const DashboardPage = () => {
       const totalSurveys = surveysData?.length || 0;
       const newSurveys = surveysData?.filter(s => s.status === 'New').length || 0;
       const contactedSurveys = surveysData?.filter(s => s.status === 'Contacted').length || 0;
-      const completedSurveys = surveysData?.filter(s => s.status === 'Completed').length || 0;
+      const completedSurveys = surveysData?.filter(s => s.status === 'Quote Accepted').length || 0;
 
       setStats({
         surveysCount: totalSurveys,
@@ -293,7 +305,7 @@ const DashboardPage = () => {
       loading: loading 
     },
     { 
-      title: 'Completed', 
+      title: 'Quotes Accepted', 
       value: stats.completedSurveys, 
       change: null, 
       icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />, 
