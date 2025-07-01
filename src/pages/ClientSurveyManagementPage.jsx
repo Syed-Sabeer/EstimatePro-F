@@ -33,16 +33,7 @@ const ClientSurveyManagementPage = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [updatingStatus, setUpdatingStatus] = useState({});
 
-  const statusOptions = [
-    'New', 
-    'Contacted', 
-    'Site Visit Done', 
-    'Quote Sent', 
-    'Quote Accepted', 
-    'Quote Unsuccessful', 
-    'Client Not Interested', 
-    'Client Uncontactable'
-  ];
+  const statusOptions = ['New', 'Contacted', 'Site Visit Done', 'Quote Sent', 'Quote Accepted', 'Quote Unsuccessful', 'Client Not Interested', 'Client Uncontactable'];
 
   useEffect(() => {
     loadSurveys();
@@ -111,8 +102,8 @@ const ClientSurveyManagementPage = () => {
       case 'Quote Sent': return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'Quote Accepted': return 'bg-green-100 text-green-800 border-green-200';
       case 'Quote Unsuccessful': return 'bg-red-100 text-red-800 border-red-200';
-      case 'Client Not Interested': return 'bg-red-100 text-red-800 border-red-200';
-      case 'Client Uncontactable': return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'Client Not Interested': return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'Client Uncontactable': return 'bg-slate-100 text-slate-800 border-slate-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
