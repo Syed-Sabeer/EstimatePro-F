@@ -17,8 +17,9 @@ import { clientSurveyAPI } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   FileText, Users, TrendingUp, ArrowUp, ArrowDown, Link as LinkIcon, 
-  Wrench, PlusCircle, BarChart2, Bell, Loader2, Eye, Trash2
+  Wrench, PlusCircle, BarChart2, Bell, Loader2, Eye, Trash2, DollarSign, MoreHorizontal
 } from 'lucide-react';
+import { displayArea } from '@/lib/utils';
 
 const StatCard = ({ title, value, change, changeType, icon, loading }) => (
     <Card>
@@ -130,7 +131,7 @@ const RecentSurveysTable = ({ surveys, loading, onStatusUpdate, onDelete }) => {
                         {survey.client_phone}
                       </td>
                       <td className="hidden lg:table-cell py-3 px-4 text-muted-foreground whitespace-nowrap">
-                        {survey.total_area ? `${survey.total_area.toFixed(1)} m²` : '-'}
+                        {survey.total_area ? displayArea(survey.total_area) : '-'}
                       </td>
                       <td className="py-3 px-4">
                         <Select

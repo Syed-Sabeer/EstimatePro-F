@@ -20,6 +20,7 @@ import {
   Eye, Trash2, Search, Filter, Download, Plus,
   Loader2, CalendarDays, User, Phone, Home, TrendingUp
 } from 'lucide-react';
+import { displayArea } from '@/lib/utils';
 
 const ClientSurveyManagementPage = () => {
   const { toast } = useToast();
@@ -271,7 +272,7 @@ const ClientSurveyManagementPage = () => {
                           {survey.client_phone}
                         </td>
                         <td className="hidden lg:table-cell py-3 px-4 text-muted-foreground whitespace-nowrap">
-                          {survey.total_area ? `${survey.total_area.toFixed(1)} m²` : '-'}
+                          {displayArea(survey.total_area)}
                         </td>
                         <td className="hidden lg:table-cell py-3 px-4 text-muted-foreground whitespace-nowrap">
                           {survey.bathroom_type}

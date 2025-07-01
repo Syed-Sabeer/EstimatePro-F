@@ -18,6 +18,7 @@ import {
   ArrowLeft, User, Phone, Home, Ruler, Calendar, Settings,
   MapPin, DollarSign, Clock, Loader2, CheckCircle, AlertCircle
 } from 'lucide-react';
+import { displayArea } from '@/lib/utils';
 
 const ClientSurveyDetailPage = () => {
   const { surveyId } = useParams();
@@ -225,7 +226,7 @@ const ClientSurveyDetailPage = () => {
                   {survey.total_area && (
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Total Area</label>
-                      <p className="text-lg font-medium">{survey.total_area.toFixed(1)} m²</p>
+                      <p className="text-lg font-medium">{displayArea(survey.total_area)}</p>
                     </div>
                   )}
                   {survey.floor_length && (
@@ -249,13 +250,13 @@ const ClientSurveyDetailPage = () => {
                   {survey.calculated_floor_area && (
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Floor Area</label>
-                      <p className="text-lg">{survey.calculated_floor_area.toFixed(1)} m²</p>
+                      <p className="text-lg">{displayArea(survey.calculated_floor_area)}</p>
                     </div>
                   )}
                   {survey.calculated_wall_area && (
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Wall Area</label>
-                      <p className="text-lg">{survey.calculated_wall_area.toFixed(1)} m²</p>
+                      <p className="text-lg">{displayArea(survey.calculated_wall_area)}</p>
                     </div>
                   )}
                 </div>
@@ -276,19 +277,19 @@ const ClientSurveyDetailPage = () => {
                     {survey.budget_area && (
                       <div className="text-center p-4 bg-blue-50 rounded-lg">
                         <h4 className="font-medium text-blue-900">Budget</h4>
-                        <p className="text-2xl font-bold text-blue-600">{survey.budget_area.toFixed(1)} m²</p>
+                        <p className="text-2xl font-bold text-blue-600">{displayArea(survey.budget_area)}</p>
                       </div>
                     )}
                     {survey.standard_area && (
                       <div className="text-center p-4 bg-yellow-50 rounded-lg">
                         <h4 className="font-medium text-yellow-900">Standard</h4>
-                        <p className="text-2xl font-bold text-yellow-600">{survey.standard_area.toFixed(1)} m²</p>
+                        <p className="text-2xl font-bold text-yellow-600">{displayArea(survey.standard_area)}</p>
                       </div>
                     )}
                     {survey.premium_area && (
                       <div className="text-center p-4 bg-green-50 rounded-lg">
                         <h4 className="font-medium text-green-900">Premium</h4>
-                        <p className="text-2xl font-bold text-green-600">{survey.premium_area.toFixed(1)} m²</p>
+                        <p className="text-2xl font-bold text-green-600">{displayArea(survey.premium_area)}</p>
                       </div>
                     )}
                   </div>
@@ -359,7 +360,7 @@ const ClientSurveyDetailPage = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Total Area:</span>
-                  <span className="font-medium">{survey.total_area ? `${survey.total_area.toFixed(1)} m²` : 'Not specified'}</span>
+                  <span className="font-medium">{survey.total_area ? displayArea(survey.total_area) : 'Not specified'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Status:</span>
