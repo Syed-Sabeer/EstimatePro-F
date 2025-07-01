@@ -336,7 +336,7 @@ class ApiService {
   // Submit client survey
   async submitClientSurvey(builderId, surveyData) {
     try {
-      const response = await fetch(`${this.baseURL}/client-surveys/store/${builderId}`, {
+      const response = await fetch(`${this.baseURL}/client-survey/store/${builderId}`, {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(surveyData),
@@ -375,7 +375,7 @@ class ApiService {
   // Get specific client survey detail
   async getClientSurveyDetail(surveyId) {
     try {
-      const response = await fetch(`${this.baseURL}/client-surveys/${surveyId}`, {
+      const response = await fetch(`${this.baseURL}/client-surveys/show/${surveyId}`, {
         method: 'GET',
         headers: this.getHeaders(true),
       });
@@ -433,7 +433,7 @@ class ApiService {
   // Get builder pricings
   async getBuilderPricings() {
     try {
-      const response = await fetch(`${this.baseURL}/builder-pricings`, {
+      const response = await fetch(`${this.baseURL}/builder-pricing`, {
         method: 'GET',
         headers: this.getHeaders(true),
       });
@@ -452,7 +452,7 @@ class ApiService {
   // Store new builder pricing
   async storeBuilderPricing(pricingData) {
     try {
-      const response = await fetch(`${this.baseURL}/builder-pricings`, {
+      const response = await fetch(`${this.baseURL}/builder-pricing`, {
         method: 'POST',
         headers: this.getHeaders(true),
         body: JSON.stringify(pricingData),
@@ -472,7 +472,7 @@ class ApiService {
   // Update builder pricing
   async updateBuilderPricing(pricingId, pricingData) {
     try {
-      const response = await fetch(`${this.baseURL}/builder-pricings/${pricingId}`, {
+      const response = await fetch(`${this.baseURL}/builder-pricing/${pricingId}`, {
         method: 'PUT',
         headers: this.getHeaders(true),
         body: JSON.stringify(pricingData),
@@ -492,7 +492,7 @@ class ApiService {
   // Delete builder pricing
   async deleteBuilderPricing(pricingId) {
     try {
-      const response = await fetch(`${this.baseURL}/builder-pricings/${pricingId}`, {
+      const response = await fetch(`${this.baseURL}/builder-pricing/${pricingId}`, {
         method: 'DELETE',
         headers: this.getHeaders(true),
       });
