@@ -41,8 +41,8 @@ export function Auth() {
     try {
       const userData = {
         name: signUpFullName,
-        email: signUpEmail,
-        password: signUpPassword,
+      email: signUpEmail,
+      password: signUpPassword,
         role_id: AUTH_CONFIG.DEFAULT_ROLE_ID, // Default role_id for regular users
       };
 
@@ -79,8 +79,8 @@ export function Auth() {
     
     try {
       const credentials = {
-        email: loginEmail,
-        password: loginPassword,
+      email: loginEmail,
+      password: loginPassword,
       };
 
       const response = await login(credentials);

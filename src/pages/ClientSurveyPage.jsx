@@ -252,11 +252,11 @@ const ClientSurveyPage = () => {
       
     } catch (error) {
       console.error('Error submitting survey:', error);
-      toast({
+    toast({
         variant: 'destructive',
         title: "Error submitting survey",
         description: error.message || "Please try again or contact the builder directly.",
-      });
+    });
     } finally {
       setSubmitting(false);
     }
@@ -360,7 +360,7 @@ const ClientSurveyPage = () => {
       </>
     );
   }
-
+  
   return (
     <>
       <Helmet>
@@ -395,8 +395,8 @@ const ClientSurveyPage = () => {
                        </>
                      ) : (
                        <>
-                         <Check className="mr-2 h-5 w-5" />
-                         {surveyConfig.submit_button_text}
+                    <Check className="mr-2 h-5 w-5" />
+                    {surveyConfig.submit_button_text}
                        </>
                      )}
                 </Button>
