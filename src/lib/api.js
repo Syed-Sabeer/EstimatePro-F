@@ -353,6 +353,33 @@ class ApiService {
     }
   }
 
+  // Submit client survey with files
+  async submitClientSurveyWithFiles(builderId, formData) {
+    try {
+      // Get auth headers but exclude Content-Type for FormData
+      const headers = {};
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${this.baseURL}/client-survey/store/${builderId}`, {
+        method: 'POST',
+        headers: headers, // Don't set Content-Type, let browser set it for FormData
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || errorData.error || 'Failed to submit survey');
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message || 'Failed to submit survey');
+    }
+  }
+
   // Get client surveys for authenticated user
   async getClientSurveys() {
     try {
@@ -531,6 +558,7 @@ export const profileAPI = {
 
 export const clientSurveyAPI = {
   submitClientSurvey: (builderId, surveyData) => apiService.submitClientSurvey(builderId, surveyData),
+  submitClientSurveyWithFiles: (builderId, formData) => apiService.submitClientSurveyWithFiles(builderId, formData),
   getClientSurveys: () => apiService.getClientSurveys(),
   getClientSurveyDetail: (surveyId) => apiService.getClientSurveyDetail(surveyId),
   updateClientSurveyStatus: (surveyId, status) => apiService.updateClientSurveyStatus(surveyId, status),

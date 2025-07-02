@@ -79,7 +79,7 @@ const surveyConfig = {
       step: 6,
       title: "Photo/Video Upload",
       fields: [
-        { id: "file_upload", label: "Please upload your photos/video (max 10 photos, no larger than 20MB per file)", type: "file_drop", width: "full" }
+        { id: "file_upload", label: "Please upload your photos (max 10 photos, no larger than 5MB per file)", type: "file_drop", width: "full" }
       ]
     }
   ],
@@ -137,6 +137,58 @@ const ClientSurveyPage = () => {
 
   const handleInputChange = (id, value) => {
     setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    const newFiles = Array.from(e.target.files);
+    const existingFiles = Array.from(formData.photos || []);
+    
+    // Validate file count (max 10 total)
+    if (existingFiles.length + newFiles.length > 10) {
+      toast({
+        variant: 'destructive',
+        title: "Too many files",
+        description: `You can only upload a maximum of 10 files. You currently have ${existingFiles.length} file(s). Please select ${10 - existingFiles.length} or fewer additional files.`,
+      });
+      return;
+    }
+    
+    // Validate file sizes (max 5MB each)
+    const oversizedFiles = newFiles.filter(file => file.size > 5 * 1024 * 1024);
+    if (oversizedFiles.length > 0) {
+      toast({
+        variant: 'destructive',
+        title: "File too large",
+        description: `Some files are larger than 5MB. Please choose smaller files.`,
+      });
+      return;
+    }
+    
+    // Validate file types
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    const invalidFiles = newFiles.filter(file => !validTypes.includes(file.type));
+    if (invalidFiles.length > 0) {
+      toast({
+        variant: 'destructive',
+        title: "Invalid file type",
+        description: "Please select only image files (PNG, JPG, GIF).",
+      });
+      return;
+    }
+    
+    // Combine existing files with new files
+    const allFiles = [...existingFiles, ...newFiles];
+    setFormData(prev => ({ ...prev, photos: allFiles }));
+    
+    // Clear the input so the same files can be selected again if needed
+    e.target.value = '';
+  };
+
+  const handleRemoveFile = (indexToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      photos: Array.from(prev.photos || []).filter((_, index) => index !== indexToRemove)
+    }));
   };
 
   const validateForm = () => {
@@ -238,7 +290,24 @@ const ClientSurveyPage = () => {
       const surveyData = mapFormDataToAPI();
       console.log('Submitting survey data:', surveyData);
       
-      const result = await clientSurveyAPI.submitClientSurvey(builderId, surveyData);
+      // Create FormData for file upload
+      const submitData = new FormData();
+      
+      // Add all survey data fields
+      Object.keys(surveyData).forEach(key => {
+        if (surveyData[key] !== null && surveyData[key] !== undefined) {
+          submitData.append(key, surveyData[key]);
+        }
+      });
+      
+      // Add photos if any (from component state)
+      if (formData.photos && formData.photos.length > 0) {
+        Array.from(formData.photos).forEach((file, index) => {
+          submitData.append(`photos[${index}]`, file);
+        });
+      }
+      
+      const result = await clientSurveyAPI.submitClientSurveyWithFiles(builderId, submitData);
       
       console.log('Survey submitted successfully:', result);
       
@@ -317,14 +386,47 @@ const ClientSurveyPage = () => {
                       <UploadCloud className="mx-auto h-12 w-12 text-gray-400" aria-hidden="true" />
                       <div className="mt-4 flex text-sm leading-6 text-gray-600">
                         <Label htmlFor="file-upload" className="relative cursor-pointer rounded-md bg-white font-semibold text-orange-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-orange-600 focus-within:ring-offset-2 hover:text-orange-500">
-                          <span>Drop your files here or click to browse</span>
-                          <Input id="file-upload" name="file-upload" type="file" className="sr-only" multiple disabled />
+                          <span>
+                            {formData.photos && formData.photos.length > 0 
+                              ? `Add more photos (${formData.photos.length}/10 selected)` 
+                              : 'Drop your photos here or click to browse'
+                            }
+                          </span>
+                          <Input 
+                            id="file-upload" 
+                            name="file-upload" 
+                            type="file" 
+                            className="sr-only" 
+                            multiple 
+                            accept="image/*"
+                            onChange={(e) => handleFileChange(e)}
+                          />
                         </Label>
                       </div>
-                      <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 20MB each</p>
+                      <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 5MB each (max 10 files)</p>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">File upload is currently disabled in this demo.</p>
+                  {formData.photos && formData.photos.length > 0 && (
+                    <div className="mt-4">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Selected files:</p>
+                      <div className="space-y-2">
+                        {Array.from(formData.photos).map((file, index) => (
+                          <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span className="text-sm text-gray-600">{file.name}</span>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleRemoveFile(index)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             default:

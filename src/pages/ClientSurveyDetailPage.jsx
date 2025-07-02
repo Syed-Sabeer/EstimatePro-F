@@ -16,7 +16,8 @@ import {
 import { clientSurveyAPI } from '@/lib/api';
 import { 
   ArrowLeft, User, Phone, Home, Ruler, Calendar, Settings,
-  MapPin, DollarSign, Clock, Loader2, CheckCircle, AlertCircle
+  MapPin, DollarSign, Clock, Loader2, CheckCircle, AlertCircle,
+  Camera, Eye, X
 } from 'lucide-react';
 import { displayArea } from '@/lib/utils';
 
@@ -28,6 +29,7 @@ const ClientSurveyDetailPage = () => {
   const [survey, setSurvey] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
 
   const statusOptions = ['New', 'Contacted', 'Site Visit Done', 'Quote Sent', 'Quote Accepted', 'Quote Unsuccessful', 'Client Not Interested', 'Client Uncontactable'];
 
@@ -266,6 +268,91 @@ const ClientSurveyDetailPage = () => {
               </CardContent>
             </Card>
 
+            {/* Photos */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Camera className="h-5 w-5 mr-2" />
+                    Project Photos
+                  </div>
+                  {(() => {
+                    let photos = [];
+                    try {
+                      if (survey.photos && survey.photos !== '[]' && survey.photos !== 'null' && survey.photos !== null) {
+                        photos = typeof survey.photos === 'string' ? JSON.parse(survey.photos) : survey.photos;
+                        photos = Array.isArray(photos) ? photos.filter(url => url && url.trim() !== '') : [];
+                      }
+                    } catch (e) {
+                      photos = [];
+                    }
+                    return photos.length > 0 ? (
+                      <Badge variant="outline" className="text-xs">
+                        {photos.length} photo{photos.length !== 1 ? 's' : ''}
+                      </Badge>
+                    ) : null;
+                  })()}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {(() => {
+                  let photos = [];
+                  try {
+                    if (survey.photos && survey.photos !== '[]' && survey.photos !== 'null' && survey.photos !== null) {
+                      photos = typeof survey.photos === 'string' ? JSON.parse(survey.photos) : survey.photos;
+                      photos = Array.isArray(photos) ? photos.filter(url => url && url.trim() !== '') : [];
+                    }
+                  } catch (e) {
+                    console.error('Error parsing photos:', e);
+                    photos = [];
+                  }
+                  
+                  return photos.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {photos.map((photoUrl, index) => (
+                      <div key={index} className="relative group cursor-pointer">
+                        <img
+                          src={photoUrl}
+                          alt={`Project photo ${index + 1}`}
+                          className="w-full h-40 object-cover rounded-lg border border-gray-200 transition-all duration-200 group-hover:scale-105 group-hover:shadow-md"
+                          onClick={() => setSelectedPhoto({ url: photoUrl, index: index + 1 })}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                        <div 
+                          className="hidden w-full h-40 bg-gray-100 rounded-lg border border-gray-200 items-center justify-center text-gray-500 text-sm"
+                        >
+                          <div className="text-center">
+                            <AlertCircle className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                            <p>Image not available</p>
+                          </div>
+                        </div>
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 rounded-lg transition-all flex items-center justify-center">
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="bg-white rounded-full p-3 shadow-lg">
+                              <Eye className="h-5 w-5 text-gray-700" />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                          {index + 1}
+                        </div>
+                      </div>
+                                            ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12 text-gray-500">
+                        <Camera className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No photos uploaded</h3>
+                        <p className="text-sm">The client didn't upload any photos for this survey</p>
+                      </div>
+                    );
+                  })()}
+                </CardContent>
+            </Card>
+
             {/* Estimates */}
             {(survey.budget_area || survey.standard_area || survey.premium_area) && (
               <Card>
@@ -375,6 +462,32 @@ const ClientSurveyDetailPage = () => {
             </Card>
           </div>
         </div>
+
+        {/* Photo Modal */}
+        {selectedPhoto && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+            onClick={() => setSelectedPhoto(null)}
+          >
+            <div className="relative max-w-4xl max-h-full">
+              <img
+                src={selectedPhoto.url}
+                alt={`Project photo ${selectedPhoto.index}`}
+                className="max-w-full max-h-full object-contain rounded-lg"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <button
+                onClick={() => setSelectedPhoto(null)}
+                className="absolute top-4 right-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
+              >
+                <X className="h-6 w-6 text-gray-700" />
+              </button>
+              <div className="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded">
+                Photo {selectedPhoto.index}
+              </div>
+            </div>
+          </div>
+        )}
       </motion.div>
     </>
   );
