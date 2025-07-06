@@ -107,13 +107,13 @@ const DashboardPreviewSection = () => {
           </div>
           
           <div className="text-center mt-8">
-            <Button 
+            {/* <Button 
               onClick={handleFeatureClick}
               className="bg-orange-500 hover:bg-orange-600 text-white"
             >
               Access Full Dashboard
               <ExternalLink className="ml-2 h-4 w-4" />
-            </Button>
+            </Button> */}
           </div>
         </motion.div>
       </div>

@@ -21,15 +21,20 @@ const Header = () => {
       <div className="container flex h-20 items-center">
         <div className="flex items-center">
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center mr-2">
-              <span className="text-white font-bold text-lg">E</span>
-            </div>
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center mr-2">
+  <img
+    src="/images/logo.jpg"
+    alt="logo"
+    className="w-full h-full object-cover rounded-lg"
+  />
+</div>
+
             <span className="text-2xl font-bold text-gray-900">EstiMate Pro</span>
           </Link>
         </div>
 
         <nav className="hidden md:flex items-center justify-center flex-1 space-x-8">
-          <NavLink 
+          {/* <NavLink 
             to="/" 
             className={({ isActive }) => `text-base transition-colors hover:text-orange-600 ${isActive ? "text-orange-600 font-semibold" : "text-foreground/80 font-medium"}`}
           >
@@ -46,7 +51,7 @@ const Header = () => {
             className={({ isActive }) => `text-base transition-colors hover:text-orange-600 ${isActive ? "text-orange-600 font-semibold" : "text-foreground/80 font-medium"}`}
           >
             Privacy Policy
-          </NavLink>
+          </NavLink> */}
         </nav>
 
         <div className="flex items-center justify-end space-x-2">
@@ -67,6 +72,18 @@ const Header = () => {
             </>
           ) : (
             <>
+{/* <NavLink 
+            to="" 
+            className={({ isActive }) => `text-base transition-colors hover:text-orange-600 ${isActive ? "text-orange-600 font-semibold" : "text-foreground/80 font-medium"}`}
+          >
+            Home
+          </NavLink> */}
+
+          <Link to="/"
+          className={({ isActive }) => `text-base transition-colors hover:text-orange-600 ${isActive ? "text-orange-600 font-semibold" : "text-foreground/80 font-medium"}`}
+          >
+            <Button variant="ghost" size="lg">Home</Button>
+          </Link>
           <Link to="/auth">
             <Button variant="ghost" size="lg">Login</Button>
           </Link>

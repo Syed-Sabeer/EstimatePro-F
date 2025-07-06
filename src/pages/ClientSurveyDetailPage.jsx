@@ -145,22 +145,7 @@ const ClientSurveyDetailPage = () => {
             <Badge variant="outline" className={`${getStatusBadge(survey.status)} px-3 py-1`}>
               {survey.status}
             </Badge>
-            <Select
-              value={survey.status}
-              onValueChange={handleStatusUpdate}
-              disabled={updatingStatus}
-            >
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Update Status" />
-              </SelectTrigger>
-              <SelectContent>
-                {statusOptions.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+           
           </div>
         </div>
 
@@ -206,10 +191,10 @@ const ClientSurveyDetailPage = () => {
                     <label className="text-sm font-medium text-muted-foreground">Tiling Level</label>
                     <p className="text-lg">{survey.tiling_level}</p>
                   </div>
-                  <div>
+                  {/* <div>
                     <label className="text-sm font-medium text-muted-foreground">Design Style</label>
                     <p className="text-lg">{survey.design_style}</p>
-                  </div>
+                  </div> */}
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Home Age</label>
                     <p className="text-lg">{survey.home_age_category}</p>
@@ -419,7 +404,23 @@ const ClientSurveyDetailPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full" variant="outline">
+              <Select
+              value={survey.status}
+              onValueChange={handleStatusUpdate}
+              disabled={updatingStatus}
+            >
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Update Status" />
+              </SelectTrigger>
+              <SelectContent>
+                {statusOptions.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {status}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+                {/* <Button className="w-full" variant="outline">
                   <Phone className="h-4 w-4 mr-2" />
                   Call Client
                 </Button>
@@ -430,7 +431,7 @@ const ClientSurveyDetailPage = () => {
                 <Button className="w-full" variant="outline">
                   <Calendar className="h-4 w-4 mr-2" />
                   Schedule Visit
-                </Button>
+                </Button> */}
               </CardContent>
             </Card>
 

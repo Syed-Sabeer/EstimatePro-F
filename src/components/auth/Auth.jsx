@@ -177,7 +177,7 @@ export function Auth() {
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="login-email">Email</Label>
-                <Input id="login-email" type="email" placeholder="m@example.com" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required />
+                <Input id="login-email" type="email" placeholder="" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="login-password">Password</Label>
@@ -241,7 +241,7 @@ export function Auth() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-email">Email</Label>
-                <Input id="signup-email" type="email" placeholder="m@example.com" value={signUpEmail} onChange={(e) => setSignUpEmail(e.target.value)} required />
+                <Input id="signup-email" type="email" placeholder="" value={signUpEmail} onChange={(e) => setSignUpEmail(e.target.value)} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-password">Password</Label>
@@ -269,7 +269,7 @@ export function Auth() {
                 <Input 
                   id="forgot-email" 
                   type="email" 
-                  placeholder="m@example.com" 
+                  placeholder="" 
                   value={forgotPasswordEmail} 
                   onChange={(e) => setForgotPasswordEmail(e.target.value)} 
                   required 

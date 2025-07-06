@@ -34,18 +34,18 @@ const Footer = () => {
               <span className="text-xl font-bold">EstiMate Pro</span>
             </Link>
             <p className="text-gray-400 text-sm">
-              Empowering contractors with intelligent tools for efficient project planning and competitive bidding.
+             Estimate Pro helps save time and win more work by streamlining the quoting process.
             </p>
-            <div className="flex space-x-2 mt-4">
+            {/* <div className="flex space-x-2 mt-4">
                 {['F', 'T', 'L', 'I'].map(letter => (
                     <button key={letter} onClick={() => handleFeatureClick(`Social ${letter}`)} className="w-8 h-8 bg-gray-700 hover:bg-orange-500 rounded flex items-center justify-center text-sm font-medium">
                         {letter}
                     </button>
                 ))}
-            </div>
+            </div> */}
           </div>
           
-          <div>
+          {/* <div>
             <p className="font-semibold mb-4 text-gray-200">Product</p>
             <div className="space-y-2">
               {[ "Features", "Pricing", "Templates", "Integrations", "API"].map(item => (
@@ -54,9 +54,9 @@ const Footer = () => {
                 </button>
               ))}
             </div>
-          </div>
+          </div> */}
           
-          <div>
+          {/* <div>
             <p className="font-semibold mb-4 text-gray-200">Company</p>
             <div className="space-y-2">
                 {["About Us", "Careers", "Blog", "Press", "Partners"].map(item => (
@@ -65,17 +65,17 @@ const Footer = () => {
                     </button>
                 ))}
             </div>
-          </div>
+          </div> */}
 
           <div>
-            <p className="font-semibold mb-4 text-gray-200">Support</p>
+            <p className="font-semibold mb-4 text-gray-200">Contact Us</p>
             <div className="space-y-2">
-                {["Help Center", "Contact Us"].map(item => (
+                {/* {["Help Center", "Contact Us"].map(item => (
                     <button key={item} onClick={() => handleFeatureClick(item)} className="block text-gray-400 hover:text-white transition-colors text-sm">
                         {item}
                     </button>
-                ))}
-                 <button onClick={() => handleFeatureClick('Privacy Policy', '/privacy-policy')} className="block text-gray-400 hover:text-white transition-colors text-sm">
+                ))} */}
+                 {/* <button onClick={() => handleFeatureClick('Privacy Policy', '/privacy-policy')} className="block text-gray-400 hover:text-white transition-colors text-sm">
                     Privacy Policy
                  </button>
                  <button onClick={() => handleFeatureClick('Terms of Service', '/terms-of-service')} className="block text-gray-400 hover:text-white transition-colors text-sm">
@@ -83,9 +83,9 @@ const Footer = () => {
                  </button>
                  <button onClick={() => handleFeatureClick('Status')} className="block text-gray-400 hover:text-white transition-colors text-sm">
                     Status
-                 </button>
-                 <p className="text-gray-400 text-sm mt-2">1-800-ESTIMATE</p>
-                 <p className="text-gray-400 text-sm">support@estimatepro.com</p>
+                 </button> */}
+                 {/* <p className="text-gray-400 text-sm mt-2">1-800-ESTIMATE</p> */}
+                 <p className="text-gray-400 text-sm">support@estimatepro.com.au</p>
             </div>
           </div>
 

@@ -39,21 +39,21 @@ const HeroSection = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button 
+              <Button to="/auth"
                 onClick={handleFeatureClick}
                 className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-lg"
               >
                 Start Free Trial
                 <ExternalLink className="ml-2 h-5 w-5" />
               </Button>
-              <Button 
+              {/* <Button 
                 variant="outline" 
                 onClick={handleFeatureClick}
                 className="border-orange-500 text-orange-500 hover:bg-orange-50 px-8 py-3 text-lg"
               >
                 <Eye className="mr-2 h-5 w-5" />
                 See How It Works
-              </Button>
+              </Button> */}
             </div>
           </motion.div>
           

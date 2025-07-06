@@ -136,7 +136,7 @@ const TermsOfServicePage = () => {
               If you have any questions about these Terms of Service, please don't hesitate to contact us.
             </p>
             <div className="mt-4 flex space-x-3">
-              <Button 
+              {/* <Button 
                 onClick={handleFeatureClick} 
                 className="bg-orange-500 hover:bg-orange-600 text-white"
               >
@@ -150,7 +150,7 @@ const TermsOfServicePage = () => {
               >
                 <Info className="w-4 h-4 mr-2" />
                 Help Center
-              </Button>
+              </Button> */}
             </div>
           </div>
         </div>
