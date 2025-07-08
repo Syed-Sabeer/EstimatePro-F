@@ -187,7 +187,7 @@ const PricingSetupPage = () => {
     { value: 'fixed', label: 'Fixed Price' },
     { value: 'hourly', label: 'Hourly Rate' },
   ];
-
+  
   const applicabilityOptions = [
     'Floor Surface',
     'Wall Surface', 
@@ -297,7 +297,7 @@ const PricingSetupPage = () => {
       markup_percent: pricing.markup_percent.toString(),
     });
     setIsEditDialogOpen(true);
-  };
+      };
 
   const handleUpdatePricing = async () => {
     if (!formData.item_name || !formData.base_price || !formData.applicability) {
@@ -379,17 +379,34 @@ const PricingSetupPage = () => {
             <CardHeader>
               <CardTitle className="flex items-center text-orange-900">
                 <Info className="mr-2 h-5 w-5" />
-                How Pricing Works
+                Pricing Setup Instructions”
               </CardTitle>
             </CardHeader>
             <CardContent className="text-orange-800 text-sm space-y-3">
-              <p>Create pricing items for different materials, services, or work types:</p>
+              <p>Look back at a few past bathroom quotes to help guide your pricing or your Excel pricing set up</p>
+              <p>A good starting point is the average amount you’ve charged for similar items across 3–4 typical bathroom renos.</p>
+              <br />
+              <span className="font-semibold">How it works:</span>
               <ul className="list-disc list-inside space-y-1">
-                <li><span className="font-semibold">Base Price:</span> Your cost for the item/service</li>
-                <li><span className="font-semibold">Markup:</span> Your profit margin percentage</li>
-                <li><span className="font-semibold">Final Price:</span> What you charge clients (Base + Markup)</li>
+                <li>You’ll enter your price (including your margin) for each job item</li>
+                <li>When a client fills out the survey, EstiMate Pro will calculate an estimate based on your pricing. This estimate will only be visible to you in your
+                dashboard.</li>
+                <li>To give you a realistic quote range, EstiMate Pro calculates:
+                 <br />
+
+                 <span className='ml-5'>Low estimate = based on your price</span>
+                    <br />
+                     <span className='ml-5'>   High estimate = your price + 30% (as a buffer for unknowns or variation)</span>
+                 
+                </li>
+              
               </ul>
-              <p>These pricing items will be used to generate accurate estimates for your clients.</p>
+<br />
+              <span className="font-semibold">How to fill your pricing template in:</span>
+
+              <p>In the “Enter your price (including margin)” column:</p>
+              <p>Enter a fixed price or $ per m², depending on what the row says</p>
+              <p>If a line says "if customer selects…" – price what you'd charge when that situation applies (e.g. layout change, niche, apartment access).</p>
             </CardContent>
           </Card>
 

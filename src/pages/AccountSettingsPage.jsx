@@ -267,14 +267,14 @@ const AccountSettingsPage = () => {
                           <Label htmlFor="phone_number">Phone Number</Label>
                           <Input id="phone_number" value={profile.phone_number} onChange={(e) => handleInputChange(e, setProfile)} placeholder="+1 (555) 123-4567" />
                         </div>
-                        <div>
+                        {/* <div>
                           <Label htmlFor="date_of_birth">Date of Birth</Label>
                           <Input id="date_of_birth" type="date" value={profile.date_of_birth} onChange={(e) => handleInputChange(e, setProfile)} />
                         </div>
                         <div>
                           <Label htmlFor="gender">Gender</Label>
                           <Input id="gender" value={profile.gender} onChange={(e) => handleInputChange(e, setProfile)} placeholder="Male/Female/Other" />
-                        </div>
+                        </div> */}
                       </>
                     ) : (
                       <>
@@ -282,8 +282,8 @@ const AccountSettingsPage = () => {
                         <InfoField icon={<User className="h-4 w-4 text-muted-foreground" />} label="Last Name" value={profile.last_name} />
                         <InfoField icon={<Mail className="h-4 w-4 text-muted-foreground" />} label="Email Address" value={user?.email} />
                         <InfoField icon={<Phone className="h-4 w-4 text-muted-foreground" />} label="Phone Number" value={profile.phone_number} />
-                        <InfoField icon={<Calendar className="h-4 w-4 text-muted-foreground" />} label="Date of Birth" value={profile.date_of_birth} />
-                        <InfoField icon={<User className="h-4 w-4 text-muted-foreground" />} label="Gender" value={profile.gender} />
+                        {/* <InfoField icon={<Calendar className="h-4 w-4 text-muted-foreground" />} label="Date of Birth" value={profile.date_of_birth} />
+                        <InfoField icon={<User className="h-4 w-4 text-muted-foreground" />} label="Gender" value={profile.gender} /> */}
                       </>
                     )}
                   </div>
@@ -300,12 +300,12 @@ const AccountSettingsPage = () => {
                           <Input id="business_name" value={profile.business_name} onChange={(e) => handleInputChange(e, setProfile)} placeholder="Builder Co. Construction" />
                         </div>
                         <div className="md:col-span-2">
-                          <Label htmlFor="bio">Bio/Description</Label>
-                          <textarea 
+                          <Label htmlFor="bio">Business Website</Label>
+                          <input 
                             id="bio" 
                             value={profile.bio} 
                             onChange={(e) => handleInputChange(e, setProfile)} 
-                            placeholder="Tell us about yourself and your business..."
+                            placeholder="Enter URL"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                             rows={3}
                           />
@@ -315,7 +315,7 @@ const AccountSettingsPage = () => {
                     <>
                       <InfoField icon={<Building className="h-4 w-4 text-muted-foreground" />} label="Business Name" value={profile.business_name} />
                         <div className="md:col-span-2">
-                          <InfoField icon={<User className="h-4 w-4 text-muted-foreground" />} label="Bio" value={profile.bio} />
+                          <InfoField icon={<User className="h-4 w-4 text-muted-foreground" />} label="Business Website" value={profile.bio} />
                         </div>
                       </>
                     )}
@@ -323,7 +323,7 @@ const AccountSettingsPage = () => {
                 </div>
 
                 {/* Address Information */}
-                <div>
+                {/* <div>
                   <h4 className="text-md font-medium mb-4">Address Information</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {isEditingProfile ? (
@@ -361,10 +361,10 @@ const AccountSettingsPage = () => {
                       </>
                     )}
                   </div>
-                </div>
+                </div> */}
 
                 {/* Social Media */}
-                <div>
+                {/* <div>
                   <h4 className="text-md font-medium mb-4">Social Media</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {isEditingProfile ? (
@@ -384,8 +384,8 @@ const AccountSettingsPage = () => {
                         <InfoField icon={<Phone className="h-4 w-4 text-muted-foreground" />} label="Instagram" value={profile.instagram_profile} />
                     </>
                   )}
-                  </div>
                 </div>
+                </div> */}
 
                 {isEditingProfile && (
                   <div className="pt-6 border-t">

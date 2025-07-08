@@ -56,7 +56,11 @@ const SidebarContent = ({ onLinkClick }) => {
       <div className="h-16 flex items-center px-6 border-b border-gray-200">
         <a href="/" className="flex items-center">
             <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
-            <span className="text-white font-bold text-sm">E</span>
+            <img
+    src="/images/logo.jpg"
+    alt="logo"
+    className="w-full h-full object-cover rounded-lg"
+  />
             </div>
             <span className="text-xl font-bold text-gray-900">EstiMate Pro</span>
         </a>

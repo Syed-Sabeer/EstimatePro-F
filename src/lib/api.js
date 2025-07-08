@@ -34,7 +34,7 @@ class ApiService {
   // Register API
   async register(userData) {
     try {
-      const response = await fetch(`${this.baseURL}/register`, {
+      const response = await fetch(`${this.baseURL}/api/register`, {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(userData),
@@ -63,7 +63,7 @@ class ApiService {
   // Login API
   async login(credentials) {
     try {
-      const response = await fetch(`${this.baseURL}/login`, {
+      const response = await fetch(`${this.baseURL}/api/login`, {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(credentials),
@@ -104,7 +104,7 @@ class ApiService {
   // Logout API
   async logout() {
     try {
-      const response = await fetch(`${this.baseURL}/logout`, {
+      const response = await fetch(`${this.baseURL}/api/logout`, {
         method: 'POST',
         headers: this.getHeaders(true),
       });
@@ -127,7 +127,7 @@ class ApiService {
   // Get current user with profile
   async getCurrentUser() {
     try {
-      const response = await fetch(`${this.baseURL}/current/user`, {
+      const response = await fetch(`${this.baseURL}/api/current/user`, {
         method: 'GET',
         headers: this.getHeaders(true),
       });
@@ -146,7 +146,7 @@ class ApiService {
   // Get user profile
   async getProfile() {
     try {
-      const response = await fetch(`${this.baseURL}/profile`, {
+      const response = await fetch(`${this.baseURL}/api/profile`, {
         method: 'GET',
         headers: this.getHeaders(true),
       });
@@ -165,7 +165,7 @@ class ApiService {
   // Get profile by ID
   async getProfileById(userId) {
     try {
-      const response = await fetch(`${this.baseURL}/profile/${userId}`, {
+      const response = await fetch(`${this.baseURL}/api/profile/${userId}`, {
         method: 'GET',
         headers: this.getHeaders(true),
       });
@@ -227,7 +227,7 @@ class ApiService {
         console.log('Sending JSON data:', cleanedData);
       }
 
-      const response = await fetch(`${this.baseURL}/profile`, {
+      const response = await fetch(`${this.baseURL}/api/profile`, {
         method: 'POST',
         headers: headers,
         body: body,
@@ -253,7 +253,7 @@ class ApiService {
   // Forgot password API
   async forgotPassword(email) {
     try {
-      const response = await fetch(`${this.baseURL}/forgot-password`, {
+      const response = await fetch(`${this.baseURL}/api/forgot-password`, {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify({ email }),
@@ -273,7 +273,7 @@ class ApiService {
   // Reset password API
   async resetPassword(resetData) {
     try {
-      const response = await fetch(`${this.baseURL}/reset-password`, {
+      const response = await fetch(`${this.baseURL}/api/reset-password`, {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(resetData),
@@ -293,7 +293,7 @@ class ApiService {
   // Refresh token
   async refreshToken() {
     try {
-      const response = await fetch(`${this.baseURL}/refresh-token`, {
+      const response = await fetch(`${this.baseURL}/api/refresh-token`, {
         method: 'POST',
         headers: this.getHeaders(true),
       });
@@ -317,7 +317,7 @@ class ApiService {
   // Send verification email
   async sendVerificationEmail() {
     try {
-      const response = await fetch(`${this.baseURL}/email/verification-notification`, {
+      const response = await fetch(`${this.baseURL}/api/email/verification-notification`, {
         method: 'POST',
         headers: this.getHeaders(true),
       });
@@ -336,7 +336,7 @@ class ApiService {
   // Submit client survey
   async submitClientSurvey(builderId, surveyData) {
     try {
-      const response = await fetch(`${this.baseURL}/client-survey/store/${builderId}`, {
+      const response = await fetch(`${this.baseURL}/api/client-survey/store/${builderId}`, {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(surveyData),
@@ -363,7 +363,7 @@ class ApiService {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch(`${this.baseURL}/client-survey/store/${builderId}`, {
+      const response = await fetch(`${this.baseURL}/api/client-survey/store/${builderId}`, {
         method: 'POST',
         headers: headers, // Don't set Content-Type, let browser set it for FormData
         body: formData,
@@ -383,7 +383,7 @@ class ApiService {
   // Get client surveys for authenticated user
   async getClientSurveys() {
     try {
-      const response = await fetch(`${this.baseURL}/client-surveys`, {
+      const response = await fetch(`${this.baseURL}/api/client-surveys`, {
         method: 'GET',
         headers: this.getHeaders(true),
       });
@@ -402,7 +402,7 @@ class ApiService {
   // Get specific client survey detail
   async getClientSurveyDetail(surveyId) {
     try {
-      const response = await fetch(`${this.baseURL}/client-surveys/show/${surveyId}`, {
+      const response = await fetch(`${this.baseURL}/api/client-surveys/show/${surveyId}`, {
         method: 'GET',
         headers: this.getHeaders(true),
       });
@@ -421,7 +421,7 @@ class ApiService {
   // Update client survey status
   async updateClientSurveyStatus(surveyId, status) {
     try {
-      const response = await fetch(`${this.baseURL}/client-surveys/update-status/${surveyId}`, {
+      const response = await fetch(`${this.baseURL}/api/client-surveys/update-status/${surveyId}`, {
         method: 'POST',
         headers: this.getHeaders(true),
         body: JSON.stringify({ status }),
@@ -441,7 +441,7 @@ class ApiService {
   // Delete client survey
   async deleteClientSurvey(surveyId) {
     try {
-      const response = await fetch(`${this.baseURL}/client-surveys/${surveyId}`, {
+      const response = await fetch(`${this.baseURL}/api/client-surveys/${surveyId}`, {
         method: 'DELETE',
         headers: this.getHeaders(true),
       });
@@ -460,7 +460,7 @@ class ApiService {
   // Get builder pricings
   async getBuilderPricings() {
     try {
-      const response = await fetch(`${this.baseURL}/builder-pricing`, {
+      const response = await fetch(`${this.baseURL}/api/builder-pricing`, {
         method: 'GET',
         headers: this.getHeaders(true),
       });
@@ -479,7 +479,7 @@ class ApiService {
   // Store new builder pricing
   async storeBuilderPricing(pricingData) {
     try {
-      const response = await fetch(`${this.baseURL}/builder-pricing`, {
+      const response = await fetch(`${this.baseURL}/api/builder-pricing`, {
         method: 'POST',
         headers: this.getHeaders(true),
         body: JSON.stringify(pricingData),
@@ -499,7 +499,7 @@ class ApiService {
   // Update builder pricing
   async updateBuilderPricing(pricingId, pricingData) {
     try {
-      const response = await fetch(`${this.baseURL}/builder-pricing/${pricingId}`, {
+      const response = await fetch(`${this.baseURL}/api/builder-pricing/${pricingId}`, {
         method: 'PUT',
         headers: this.getHeaders(true),
         body: JSON.stringify(pricingData),
@@ -519,7 +519,7 @@ class ApiService {
   // Delete builder pricing
   async deleteBuilderPricing(pricingId) {
     try {
-      const response = await fetch(`${this.baseURL}/builder-pricing/${pricingId}`, {
+      const response = await fetch(`${this.baseURL}/api/builder-pricing/${pricingId}`, {
         method: 'DELETE',
         headers: this.getHeaders(true),
       });

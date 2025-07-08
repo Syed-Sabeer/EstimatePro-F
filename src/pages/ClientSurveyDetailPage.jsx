@@ -17,7 +17,7 @@ import { clientSurveyAPI } from '@/lib/api';
 import { 
   ArrowLeft, User, Phone, Home, Ruler, Calendar, Settings,
   MapPin, DollarSign, Clock, Loader2, CheckCircle, AlertCircle,
-  Camera, Eye, X
+  Camera, Eye, X, Download
 } from 'lucide-react';
 import { displayArea } from '@/lib/utils';
 
@@ -30,6 +30,38 @@ const ClientSurveyDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+
+  // Download image function - avoids CORS issues by using direct anchor download
+  const downloadImage = async (imageUrl, filename) => {
+    try {
+      // Create a temporary anchor element to trigger download
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = filename || `project-photo-${Date.now()}.jpg`;
+      link.target = '_blank'; // Open in new tab if download fails
+      
+      // Add to DOM, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Show success message
+      toast({
+        title: 'Download started',
+        description: 'The image download should begin shortly.',
+      });
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Download failed',
+        description: 'Unable to download the image. The image will open in a new tab instead.',
+      });
+      
+      // Fallback: open image in new tab
+      window.open(imageUrl, '_blank');
+    }
+  };
 
   const statusOptions = ['New', 'Contacted', 'Site Visit Done', 'Quote Sent', 'Quote Accepted', 'Quote Unsuccessful', 'Client Not Interested', 'Client Uncontactable'];
 
@@ -191,10 +223,6 @@ const ClientSurveyDetailPage = () => {
                     <label className="text-sm font-medium text-muted-foreground">Tiling Level</label>
                     <p className="text-lg">{survey.tiling_level}</p>
                   </div>
-                  {/* <div>
-                    <label className="text-sm font-medium text-muted-foreground">Design Style</label>
-                    <p className="text-lg">{survey.design_style}</p>
-                  </div> */}
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Home Age</label>
                     <p className="text-lg">{survey.home_age_category}</p>
@@ -295,12 +323,22 @@ const ClientSurveyDetailPage = () => {
                   return photos.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                       {photos.map((photoUrl, index) => (
-                      <div key={index} className="relative group cursor-pointer">
+                      <div 
+                        key={index} 
+                        className="relative group cursor-pointer"
+                        onClick={(e) => {
+                          setSelectedPhoto({ url: photoUrl, index: index + 1 });
+                        }}
+                      >
                         <img
                           src={photoUrl}
                           alt={`Project photo ${index + 1}`}
-                          className="w-full h-40 object-cover rounded-lg border border-gray-200 transition-all duration-200 group-hover:scale-105 group-hover:shadow-md"
-                          onClick={() => setSelectedPhoto({ url: photoUrl, index: index + 1 })}
+                          className="w-full h-40 object-cover rounded-lg border border-gray-200 transition-all duration-200 group-hover:scale-105 group-hover:shadow-md cursor-pointer"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setSelectedPhoto({ url: photoUrl, index: index + 1 });
+                          }}
                           onError={(e) => {
                             e.target.style.display = 'none';
                             e.target.nextSibling.style.display = 'flex';
@@ -315,7 +353,18 @@ const ClientSurveyDetailPage = () => {
                           </div>
                         </div>
                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 rounded-lg transition-all flex items-center justify-center">
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-2">
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                downloadImage(photoUrl, `project-photo-${index + 1}.jpg`);
+                              }}
+                              className="bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors"
+                              title="Download image"
+                            >
+                              <Download className="h-4 w-4 text-gray-700" />
+                            </button>
                             <div className="bg-white rounded-full p-3 shadow-lg">
                               <Eye className="h-5 w-5 text-gray-700" />
                             </div>
@@ -420,18 +469,6 @@ const ClientSurveyDetailPage = () => {
                 ))}
               </SelectContent>
             </Select>
-                {/* <Button className="w-full" variant="outline">
-                  <Phone className="h-4 w-4 mr-2" />
-                  Call Client
-                </Button>
-                <Button className="w-full" variant="outline">
-                  <DollarSign className="h-4 w-4 mr-2" />
-                  Generate Quote
-                </Button>
-                <Button className="w-full" variant="outline">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Schedule Visit
-                </Button> */}
               </CardContent>
             </Card>
 
@@ -464,28 +501,138 @@ const ClientSurveyDetailPage = () => {
           </div>
         </div>
 
-        {/* Photo Modal */}
+                {/* Photo Modal - SweetAlert Style */}
         {selectedPhoto && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 backdrop-blur-md bg-white bg-opacity-20 flex items-center justify-center z-50 p-4"
             onClick={() => setSelectedPhoto(null)}
           >
-            <div className="relative max-w-4xl max-h-full">
-              <img
-                src={selectedPhoto.url}
-                alt={`Project photo ${selectedPhoto.index}`}
-                className="max-w-full max-h-full object-contain rounded-lg"
-                onClick={(e) => e.stopPropagation()}
-              />
-              <button
-                onClick={() => setSelectedPhoto(null)}
-                className="absolute top-4 right-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
-              >
-                <X className="h-6 w-6 text-gray-700" />
-              </button>
-              <div className="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded">
-                Photo {selectedPhoto.index}
+            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 overflow-hidden">
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Project Photo {selectedPhoto.index}</h3>
+                <div className="flex items-center space-x-2">
+                  {/* Download Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      downloadImage(selectedPhoto.url, `project-photo-${selectedPhoto.index}.jpg`);
+                    }}
+                    className="flex items-center px-3 py-2 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                    title="Download image"
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    Download
+                  </button>
+                  {/* Close Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedPhoto(null);
+                    }}
+                    className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
+                    aria-label="Close modal"
+                    title="Close modal"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
               </div>
+              
+              {/* Image Container */}
+              <div className="p-4">
+                <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                  <img
+                    src={selectedPhoto.url}
+                    alt={`Project photo ${selectedPhoto.index}`}
+                    className="w-full h-full object-cover"
+                    onClick={(e) => e.stopPropagation()}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                  <div 
+                    className="hidden w-full h-full bg-gray-100 items-center justify-center text-gray-500"
+                  >
+                    <div className="text-center">
+                      <AlertCircle className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                      <p className="text-lg">Image not available</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Footer with Navigation */}
+              {(() => {
+                let photos = [];
+                try {
+                  if (survey.photos && survey.photos !== '[]' && survey.photos !== 'null' && survey.photos !== null) {
+                    photos = typeof survey.photos === 'string' ? JSON.parse(survey.photos) : survey.photos;
+                    photos = Array.isArray(photos) ? photos.filter(url => url && url.trim() !== '') : [];
+                  }
+                } catch (e) {
+                  photos = [];
+                }
+                
+                const currentIndex = selectedPhoto.index - 1;
+                const hasPrevious = currentIndex > 0;
+                const hasNext = currentIndex < photos.length - 1;
+                
+                return photos.length > 1 ? (
+                  <div className="flex items-center justify-between p-4 border-t border-gray-200">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (hasPrevious) {
+                          setSelectedPhoto({ 
+                            url: photos[currentIndex - 1], 
+                            index: currentIndex 
+                          });
+                        }
+                      }}
+                      disabled={!hasPrevious}
+                      className={`flex items-center px-3 py-2 rounded-lg transition-colors ${
+                        hasPrevious 
+                          ? 'bg-gray-100 hover:bg-gray-200 text-gray-700' 
+                          : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                      Previous
+                    </button>
+                    
+                    <span className="text-sm text-gray-500">
+                      {selectedPhoto.index} of {photos.length}
+                    </span>
+                    
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (hasNext) {
+                          setSelectedPhoto({ 
+                            url: photos[currentIndex + 1], 
+                            index: currentIndex + 2 
+                          });
+                        }
+                      }}
+                      disabled={!hasNext}
+                      className={`flex items-center px-3 py-2 rounded-lg transition-colors ${
+                        hasNext 
+                          ? 'bg-gray-100 hover:bg-gray-200 text-gray-700' 
+                          : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      Next
+                      <svg className="h-4 w-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : null;
+              })()}
             </div>
           </div>
         )}

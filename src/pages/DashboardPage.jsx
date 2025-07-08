@@ -322,7 +322,7 @@ const DashboardPage = () => {
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <Card className="col-span-1 lg:col-span-2">
+          <Card className="col-span-12">
             <CardHeader>
               <CardTitle>Client Survey Tools</CardTitle>
             </CardHeader>
@@ -338,10 +338,10 @@ const DashboardPage = () => {
                   <LinkIcon className="mr-2 h-4 w-4" />
                   Copy Survey Link
                 </Button>
-                <Button onClick={testEstimateTool} variant="outline">
+                {/* <Button onClick={testEstimateTool} variant="outline">
                   <Wrench className="mr-2 h-4 w-4" />
                   Test Calculator
-                </Button>
+                </Button> */}
               </div>
               {estimateLink && (
                 <div className="mt-4 p-3 bg-gray-100 rounded-md text-sm break-words">
@@ -358,7 +358,7 @@ const DashboardPage = () => {
               )}
             </CardContent>
           </Card>
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
@@ -372,7 +372,7 @@ const DashboardPage = () => {
                 View Analytics
               </Button>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
         <RecentSurveysTable 
           surveys={recentSurveys} 

@@ -12,15 +12,15 @@ import { clientSurveyAPI } from '@/lib/api';
 import { Home, UploadCloud, Check, Loader2 } from 'lucide-react';
 
 const surveyConfig = {
-  welcome_title: "Hi there! Welcome to EstiMate",
-  welcome_subtitle: "Let's get started on your bathroom renovation estimate",
-  welcome_info: "Your builder wants to provide you with an estimate and needs to collect some basic information about your bathroom renovation.",
+  welcome_title: "Hi there, thank you for your inquiry!",
+  // welcome_subtitle: "Let's get started on your bathroom renovation estimate",
+  welcome_info: "This is my EstiMate Pro tool — a quick and easy way for you to share your bathroom details so I can prepare a quote for your renovation. All you need to do is enter a few measurements, select your design preferences, and upload a couple of photos. It takes about 2 minutes, and I’ll use your info to get in touch with a tailored quote.",
   steps: [
     {
       step: 1,
       title: "Contact Information",
       fields: [
-        { id: "full_name", label: "Your Name *", type: "text", placeholder: "Enter your full name" },
+        { id: "full_name", label: "Your Name *", type: "text", placeholder: "Enter your name" },
         { id: "phone_number", label: "Your Contact Number *", type: "text", placeholder: "Enter your phone number" }
       ]
     },
@@ -31,11 +31,19 @@ const surveyConfig = {
         { 
           id: "measurement_type", type: "radio_toggle", options: [
             { value: "direct", label: "Enter total size directly", sublabel: "If you know the total square meters" },
-            { value: "calculate", label: "Let us calculate it for you", sublabel: "Enter individual measurements" }
+            { value: "calculate", label: "Let us calculate it for you", sublabel: "Enter individual measurements" },
+            { value: "dimensions", label: "Enter dimensions directly", sublabel: "Enter length, width, and height" }
           ],
           width: "full"
         },
-        { id: "total_size", label: "Total Size (square meters) *", type: "text", placeholder: "e.g., 12.5", condition: { field: "measurement_type", value: "direct" }, width: "full" }
+        { id: "total_size", label: "Total Size (square meters) *", type: "text", placeholder: "e.g., 12.5", condition: { field: "measurement_type", value: "direct" }, width: "full" },
+        { id: "floor_length", label: "Floor Length (m) *", type: "text", placeholder: "e.g., 3.5", condition: { field: "measurement_type", value: "calculate" }, width: "half" },
+        { id: "floor_width", label: "Floor Width (m) *", type: "text", placeholder: "e.g., 2.8", condition: { field: "measurement_type", value: "calculate" }, width: "half" },
+        { id: "wall_height", label: "Wall Height (m) *", type: "text", placeholder: "e.g., 2.4", condition: { field: "measurement_type", value: "calculate" }, width: "half" },
+        { id: "calculated_display", label: "Calculated Measurements", type: "calculated_display", condition: { field: "measurement_type", value: "calculate" }, width: "full" },
+        { id: "direct_length", label: "Length (m) *", type: "text", placeholder: "e.g., 3.5", condition: { field: "measurement_type", value: "dimensions" }, width: "half" },
+        { id: "direct_width", label: "Width (m) *", type: "text", placeholder: "e.g., 2.8", condition: { field: "measurement_type", value: "dimensions" }, width: "half" },
+        { id: "direct_height", label: "Height (m) *", type: "text", placeholder: "e.g., 2.4", condition: { field: "measurement_type", value: "dimensions" }, width: "half" }
       ]
     },
     {
@@ -56,8 +64,8 @@ const surveyConfig = {
             { value: "premium", label: "Premium", "sublabel": "Floor to ceiling tiles" }
         ], width: "full"},
         { id: "include_tiles", label: "Would you like for the tiles to be included in the estimate? *", type: "radio_toggle", options: [
-            { value: "no", label: "No, thank you", "sublabel": "I will supply my own tiles" },
-            { value: "yes", label: "Yes, please!", "sublabel": "Include in the estimate" }
+          { value: "yes", label: "Yes, please!", "sublabel": "Include in the estimate" },
+          { value: "no", label: "No, thank you", "sublabel": "I will supply my own tiles" }
         ], width: "full"}
       ]
     },
@@ -83,7 +91,7 @@ const surveyConfig = {
       ]
     }
   ],
-  submit_button_text: "Get My Estimate"
+  submit_button_text: "Submit"
 };
 
 const SurveyStep = ({ step, title, children }) => (
@@ -137,6 +145,40 @@ const ClientSurveyPage = () => {
 
   const handleInputChange = (id, value) => {
     setFormData(prev => ({ ...prev, [id]: value }));
+    
+    // Auto-calculate measurements when individual dimensions are entered
+    if ((formData.measurement_type === 'calculate' && ['floor_length', 'floor_width', 'wall_height'].includes(id)) ||
+        (formData.measurement_type === 'dimensions' && ['direct_length', 'direct_width', 'direct_height'].includes(id))) {
+      const newData = { ...formData, [id]: value };
+      
+      let floorLength, floorWidth, wallHeight;
+      
+      if (formData.measurement_type === 'calculate') {
+        floorLength = parseFloat(newData.floor_length) || 0;
+        floorWidth = parseFloat(newData.floor_width) || 0;
+        wallHeight = parseFloat(newData.wall_height) || 0;
+      } else {
+        floorLength = parseFloat(newData.direct_length) || 0;
+        floorWidth = parseFloat(newData.direct_width) || 0;
+        wallHeight = parseFloat(newData.direct_height) || 0;
+      }
+      
+      if (floorLength > 0 && floorWidth > 0 && wallHeight > 0) {
+        // Calculate areas
+        const floorArea = floorLength * floorWidth;
+        const wallArea = 2 * (floorLength * wallHeight) + 2 * (floorWidth * wallHeight);
+        const totalArea = floorArea + wallArea;
+        
+        // Update form data with calculated values
+        setFormData(prev => ({
+          ...prev,
+          [id]: value,
+          calculated_floor_area: floorArea,
+          calculated_wall_area: wallArea,
+          calculated_total_area: totalArea
+        }));
+      }
+    }
   };
 
   const handleFileChange = (e) => {
@@ -206,6 +248,10 @@ const ClientSurveyPage = () => {
     // Add measurement validation based on type
     if (formData.measurement_type === 'direct') {
       requiredFields.push('total_size');
+    } else if (formData.measurement_type === 'calculate') {
+      requiredFields.push('floor_length', 'floor_width', 'wall_height');
+    } else if (formData.measurement_type === 'dimensions') {
+      requiredFields.push('direct_length', 'direct_width', 'direct_height');
     }
 
     const missingFields = requiredFields.filter(field => !formData[field]);
@@ -267,9 +313,15 @@ const ClientSurveyPage = () => {
       client_name: formData.full_name,
       client_phone: formData.phone_number,
       total_area: formData.measurement_type === 'direct' ? parseFloat(formData.total_size) || null : null,
-      floor_length: null, // Not collected in this form
-      floor_width: null,  // Not collected in this form  
-      wall_height: null,  // Not collected in this form
+      floor_length: formData.measurement_type === 'calculate' ? parseFloat(formData.floor_length) || null : 
+                   formData.measurement_type === 'dimensions' ? parseFloat(formData.direct_length) || null : null,
+      floor_width: formData.measurement_type === 'calculate' ? parseFloat(formData.floor_width) || null : 
+                  formData.measurement_type === 'dimensions' ? parseFloat(formData.direct_width) || null : null,
+      wall_height: formData.measurement_type === 'calculate' ? parseFloat(formData.wall_height) || null : 
+                  formData.measurement_type === 'dimensions' ? parseFloat(formData.direct_height) || null : null,
+      calculated_floor_area: formData.calculated_floor_area || null,
+      calculated_wall_area: formData.calculated_wall_area || null,
+      calculated_total_area: formData.calculated_total_area || null,
       bathroom_type: mapBathroomType(formData.property_type),
       tiling_level: mapTilingLevel(formData.tile_preference),
       design_style: 'Modern', // Default value
@@ -427,6 +479,34 @@ const ClientSurveyPage = () => {
                       </div>
                     </div>
                   )}
+                </div>
+              );
+            case 'calculated_display':
+              return (
+                <div>
+                  <Label className="font-semibold text-gray-700">{field.label}</Label>
+                  <div className="mt-2 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">
+                          {formData.calculated_floor_area ? formData.calculated_floor_area.toFixed(2) : '0.00'} m²
+                        </div>
+                        <div className="text-sm text-gray-600">Floor Area</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">
+                          {formData.calculated_wall_area ? formData.calculated_wall_area.toFixed(2) : '0.00'} m²
+                        </div>
+                        <div className="text-sm text-gray-600">Wall Area</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">
+                          {formData.calculated_total_area ? formData.calculated_total_area.toFixed(2) : '0.00'} m²
+                        </div>
+                        <div className="text-sm text-gray-600">Total Area</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               );
             default:
