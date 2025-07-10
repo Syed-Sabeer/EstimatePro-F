@@ -43,7 +43,7 @@ const TryEstimateProSection = () => {
   onClick={handleFeatureClick}
   className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-lg"
 >
-  <Link to="/auth" className="flex items-center">
+  <Link to="/auth?tab=signup" className="flex items-center">
     Start Free Trial
     <ExternalLink className="ml-2 h-5 w-5" />
   </Link>

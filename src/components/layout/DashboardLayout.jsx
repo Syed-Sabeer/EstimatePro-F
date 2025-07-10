@@ -89,7 +89,7 @@ const DashboardLayout = () => {
     try {
       await logout();
       toast({ title: 'Goodbye!', description: 'Successfully logged out.' });
-    navigate('/auth');
+    navigate('/auth?tab=login');
     } catch (error) {
       toast({ 
         variant: 'destructive', 

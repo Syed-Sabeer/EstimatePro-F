@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,6 +18,9 @@ import { AUTH_CONFIG } from '@/lib/config';
 import { authAPI } from '@/lib/api';
 
 export function Auth() {
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'login';
+  
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
@@ -159,7 +162,7 @@ export function Auth() {
   };
 
   return (
-    <Tabs defaultValue="login" className="w-full max-w-md">
+    <Tabs defaultValue={defaultTab} className="w-full max-w-md">
       <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="login">Login</TabsTrigger>
         <TabsTrigger value="signup">Sign Up</TabsTrigger>

@@ -40,7 +40,7 @@ const HeroSection = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
-            <Link to="/auth">
+            <Link to="/auth?tab=signup">
   <button
     onClick={handleFeatureClick}
     className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-lg flex items-center"

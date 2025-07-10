@@ -33,7 +33,7 @@ export default function PasswordResetPage() {
         title: 'Invalid reset link', 
         description: 'The password reset link is invalid or has expired.' 
       });
-      navigate('/auth');
+      navigate('/auth?tab=login');
     }
   }, [token, email, navigate, toast]);
 
@@ -75,7 +75,7 @@ export default function PasswordResetPage() {
         description: 'Your password has been reset. You can now log in with your new password.' 
       });
       
-      navigate('/auth');
+      navigate('/auth?tab=login');
       
     } catch (error) {
       toast({ 

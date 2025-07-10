@@ -10,7 +10,7 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/');
+      navigate('/auth?tab=login');
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -84,10 +84,10 @@ const Header = () => {
           >
             <Button variant="ghost" size="lg">Home</Button>
           </Link>
-          <Link to="/auth">
+          <Link to="/auth?tab=login">
             <Button variant="ghost" size="lg">Login</Button>
           </Link>
-          <Link to="/auth">
+          <Link to="/auth?tab=signup">
             <Button className="bg-orange-500 hover:bg-orange-600" size="lg">Sign Up</Button>
           </Link>
             </>
