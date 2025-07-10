@@ -325,7 +325,12 @@ const ClientSurveyPage = () => {
       bathroom_type: mapBathroomType(formData.property_type),
       tiling_level: mapTilingLevel(formData.tile_preference),
       design_style: 'Modern', // Default value
-      home_age_category: mapHomeAge(formData.home_age)
+      home_age_category: mapHomeAge(formData.home_age),
+      // Additional fields for conditional calculations
+      toilet_move: formData.toilet_move,
+      wall_change: formData.wall_change,
+      include_tiles: formData.include_tiles,
+      property_type: formData.property_type
     };
   };
 
