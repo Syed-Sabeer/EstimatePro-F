@@ -160,7 +160,22 @@ const mapPriceTypeToEnum = (priceType, selectedPriceType = null) => {
     'percentage_or_fixed': selectedPriceType || 'fixed'
   };
   
-  return priceTypeMap[priceType] || 'fixed';
+  // Validate that the selected price type is valid for percentage_or_fixed items
+  if (priceType === 'percentage_or_fixed' && selectedPriceType && !['fixed', 'percentage'].includes(selectedPriceType)) {
+    console.warn('Invalid selectedPriceType for percentage_or_fixed:', selectedPriceType);
+    return 'fixed'; // Default to fixed if invalid
+  }
+  
+  const result = priceTypeMap[priceType] || 'fixed';
+  
+  // Validate that the result is one of the allowed backend values
+  const allowedTypes = ['m2', 'linear_meter', 'fixed', 'hourly', 'percentage'];
+  if (!allowedTypes.includes(result)) {
+    console.error('Invalid price type mapped:', result, 'for original:', priceType);
+    return 'fixed'; // Default to fixed if invalid
+  }
+  
+  return result;
 };
 
 // Helper function to get display text for price type
@@ -190,10 +205,18 @@ const PricingSetupPage = () => {
       
       // Initialize price inputs with existing data
       const inputs = {};
+      const selections = {};
       pricingsData.forEach(pricing => {
         inputs[pricing.item_name] = pricing.final_price || '';
+        // Initialize price type selections for percentage_or_fixed items
+        if (pricing.price_type === 'percentage') {
+          selections[pricing.item_name] = 'percentage';
+        } else if (pricing.price_type === 'fixed') {
+          selections[pricing.item_name] = 'fixed';
+        }
       });
       setPriceInputs(inputs);
+      setPriceTypeSelections(selections);
     } catch (error) {
       toast({ 
         variant: 'destructive', 
@@ -226,31 +249,71 @@ const PricingSetupPage = () => {
   const handleSaveAllPricing = async () => {
     setSaving(true);
     try {
-      // Delete existing pricing items
-      for (const pricing of pricings) {
-        await builderPricingAPI.deleteBuilderPricing(pricing.id);
-      }
+      // Delete existing pricing items (use Promise.allSettled to handle failures gracefully)
+      const deletePromises = pricings.map(pricing => 
+        builderPricingAPI.deleteBuilderPricing(pricing.id).catch(error => {
+          console.warn(`Failed to delete pricing ${pricing.id}:`, error);
+          return null; // Continue with other operations
+        })
+      );
+      
+      await Promise.allSettled(deletePromises);
 
       // Create new pricing items for all items with prices
-      const savePromises = [];
+      const itemsToSave = [];
       
       PREDEFINED_PRICING_ITEMS.forEach(item => {
         const price = priceInputs[item.item_name];
         if (price && parseFloat(price) > 0) {
           const selectedPriceType = priceTypeSelections[item.item_name];
+          const mappedPriceType = mapPriceTypeToEnum(item.price_type, selectedPriceType);
+          
+          console.log('=== DEBUG PRICING ===');
+          console.log('Item:', item.item_name);
+          console.log('Original price_type:', item.price_type);
+          console.log('Selected price type:', selectedPriceType);
+          console.log('Mapped price type:', mappedPriceType);
+          console.log('Price inputs:', priceInputs);
+          console.log('Price type selections:', priceTypeSelections);
+          
+          // Validate the mapped price type before sending
+          if (!mappedPriceType || mappedPriceType.trim() === '' || mappedPriceType === 'undefined' || mappedPriceType === 'null') {
+            console.error('Invalid mapped price type for item:', item.item_name, mappedPriceType);
+            return; // Skip this item
+          }
+          
+          // Ensure the price type is one of the allowed values
+          const allowedTypes = ['m2', 'linear_meter', 'fixed', 'hourly', 'percentage'];
+          if (!allowedTypes.includes(mappedPriceType)) {
+            console.error('Invalid price type for backend:', mappedPriceType, 'for item:', item.item_name);
+            return; // Skip this item
+          }
+          
           const pricingData = {
             item_name: item.item_name,
             applicability: item.estimate_options,
-            price_type: mapPriceTypeToEnum(item.price_type, selectedPriceType),
+            price_type: mappedPriceType,
             base_price: parseFloat(price),
             markup_percent: 0, // No markup since price includes margin
             final_price: parseFloat(price),
           };
-          savePromises.push(builderPricingAPI.storeBuilderPricing(pricingData));
+          
+          console.log('Sending pricing data:', pricingData);
+          itemsToSave.push({ item: item.item_name, data: pricingData });
         }
       });
 
-      await Promise.all(savePromises);
+      // Save items one by one to identify which one fails
+      for (const item of itemsToSave) {
+        try {
+          console.log('Saving item:', item.item);
+          await builderPricingAPI.storeBuilderPricing(item.data);
+          console.log('Successfully saved:', item.item);
+        } catch (error) {
+          console.error('Failed to save item:', item.item, error);
+          throw error; // Re-throw to stop the process
+        }
+      }
       await fetchPricings();
       
       toast({ 

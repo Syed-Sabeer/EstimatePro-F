@@ -479,6 +479,8 @@ class ApiService {
   // Store new builder pricing
   async storeBuilderPricing(pricingData) {
     try {
+      console.log('API: Sending pricing data to backend:', pricingData);
+      
       const response = await fetch(`${this.baseURL}/api/builder-pricing`, {
         method: 'POST',
         headers: this.getHeaders(true),
@@ -487,6 +489,7 @@ class ApiService {
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('API: Backend validation error:', errorData);
         throw new Error(errorData.message || errorData.error || 'Failed to store pricing');
       }
 
