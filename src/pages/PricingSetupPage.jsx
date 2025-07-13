@@ -17,6 +17,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { 
   Loader2, 
   Save, 
   Info, 
@@ -114,15 +121,17 @@ const PREDEFINED_PRICING_ITEMS = [
     id: 'builder_labour',
     item_name: 'Builder\'s labour, project management & administration costs',
     estimate_options: 'All estimates',
-    price_type: '% of all above line items',
-    category: 'Finishes & Builder\'s labour'
+    price_type: 'percentage_or_fixed',
+    category: 'Finishes & Builder\'s labour',
+    price_type_options: ['percentage', 'fixed']
   },
   {
     id: 'access_difficult_site',
     item_name: 'Access/difficult site fee',
     estimate_options: 'If client selects lives in apartment',
-    price_type: '% margin of all above line items',
-    category: 'Finishes & Builder\'s labour'
+    price_type: 'percentage_or_fixed',
+    category: 'Finishes & Builder\'s labour',
+    price_type_options: ['percentage', 'fixed']
   },
   {
     id: 'gap_filling_painting',
@@ -141,17 +150,25 @@ const PREDEFINED_PRICING_ITEMS = [
 ];
 
 // Function to map descriptive price types to backend enum values
-const mapPriceTypeToEnum = (priceType) => {
+const mapPriceTypeToEnum = (priceType, selectedPriceType = null) => {
   const priceTypeMap = {
     'Fixed price based on avg of days': 'fixed',
     'Fixed price estimate': 'fixed',
     'per M2': 'm2',
-    '% of all above line items': 'fixed',
-    '% margin of all above line items': 'fixed',
-    'Fixed price estimate per room': 'fixed'
+    'Fixed price estimate per room': 'fixed',
+    'percentage_or_fixed': selectedPriceType || 'fixed'
   };
   
   return priceTypeMap[priceType] || 'fixed';
+};
+
+// Helper function to get display text for price type
+const getPriceTypeDisplayText = (item) => {
+  if (item.price_type === 'percentage_or_fixed') {
+    const selectedType = priceTypeSelections[item.item_name] || 'fixed';
+    return selectedType === 'percentage' ? 'Percentage (%)' : 'Fixed Price';
+  }
+  return item.price_type;
 };
 
 const PricingSetupPage = () => {
@@ -161,6 +178,7 @@ const PricingSetupPage = () => {
   const [saving, setSaving] = useState(false);
   const [pricings, setPricings] = useState([]);
   const [priceInputs, setPriceInputs] = useState({});
+  const [priceTypeSelections, setPriceTypeSelections] = useState({});
 
   const fetchPricings = useCallback(async () => {
     if (!user) return;
@@ -197,6 +215,13 @@ const PricingSetupPage = () => {
     }));
   };
 
+  const handlePriceTypeChange = (itemName, priceType) => {
+    setPriceTypeSelections(prev => ({
+      ...prev,
+      [itemName]: priceType
+    }));
+  };
+
   const handleSaveAllPricing = async () => {
     setSaving(true);
     try {
@@ -211,10 +236,11 @@ const PricingSetupPage = () => {
       PREDEFINED_PRICING_ITEMS.forEach(item => {
         const price = priceInputs[item.item_name];
         if (price && parseFloat(price) > 0) {
+          const selectedPriceType = priceTypeSelections[item.item_name];
           const pricingData = {
             item_name: item.item_name,
             applicability: item.estimate_options,
-            price_type: mapPriceTypeToEnum(item.price_type),
+            price_type: mapPriceTypeToEnum(item.price_type, selectedPriceType),
             base_price: parseFloat(price),
             markup_percent: 0, // No markup since price includes margin
             final_price: parseFloat(price),
@@ -284,6 +310,7 @@ const PricingSetupPage = () => {
               <ul className="list-disc list-inside space-y-1">
                 <li>You'll enter your price (including your margin) for each job item.</li>
                 <li>When a client fills out the survey, EstiMate Pro will calculate an estimate based on your pricing. This estimate will only be visible to you in your dashboard.</li>
+                <li>For percentage-based items (Builder's labour, Access fees), the percentage is calculated on the subtotal of all other line items.</li>
                 <li>To give you a realistic quote range, EstiMate Pro calculates:
                   <br />
                   <span className='ml-5'>Low estimate = based on your price</span>
@@ -295,6 +322,11 @@ const PricingSetupPage = () => {
               <span className="font-semibold">How to fill your pricing template in:</span>
               <p>In the "Enter your price (including margin)" column:</p>
               <p>Enter a fixed price or $ per m², depending on what the row says.</p>
+              <p>For "Builder's labour" and "Access/difficult site fee" items, you can choose between:</p>
+              <ul className="list-disc list-inside space-y-1 ml-4">
+                <li><strong>Fixed Price:</strong> Enter a specific dollar amount</li>
+                <li><strong>Percentage (%):</strong> Enter a percentage (e.g., 15 for 15%) that will be calculated as a percentage of the subtotal of all other line items included in the estimate</li>
+              </ul>
               <p>If a line says "if customer selects…" – price what you'd charge when that situation applies (e.g. layout change, niche, apartment access).</p>
             </CardContent>
           </Card>
@@ -332,19 +364,44 @@ const PricingSetupPage = () => {
                         <TableRow key={item.id}>
                           <TableCell className="font-medium">{item.item_name}</TableCell>
                           <TableCell>{item.estimate_options}</TableCell>
-                          <TableCell>{item.price_type}</TableCell>
+                          <TableCell>
+                            {item.price_type === 'percentage_or_fixed' ? (
+                              <Select
+                                value={priceTypeSelections[item.item_name] || 'fixed'}
+                                onValueChange={(value) => handlePriceTypeChange(item.item_name, value)}
+                              >
+                                <SelectTrigger className="w-32">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="fixed">Fixed Price</SelectItem>
+                                  <SelectItem value="percentage">Percentage (%)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <span>{getPriceTypeDisplayText(item)}</span>
+                            )}
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center space-x-2">
                               <DollarSign className="h-4 w-4 text-gray-400" />
                               <Input
                                 type="number"
                                 step="0.01"
-                                placeholder="0.00"
+                                placeholder={priceTypeSelections[item.item_name] === 'percentage' ? '0.00%' : '0.00'}
                                 value={priceInputs[item.item_name] || ''}
                                 onChange={(e) => handlePriceChange(item.item_name, e.target.value)}
                                 className="w-32"
                               />
+                              {priceTypeSelections[item.item_name] === 'percentage' && (
+                                <span className="text-sm text-gray-500">%</span>
+                              )}
                             </div>
+                            {item.price_type === 'percentage_or_fixed' && priceTypeSelections[item.item_name] === 'percentage' && (
+                              <div className="text-xs text-gray-500 mt-1">
+                                Calculated as % of subtotal of all other line items
+                              </div>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}

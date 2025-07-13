@@ -240,7 +240,7 @@ export function Auth() {
             <form onSubmit={handleSignUp} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="signup-name">Full Name</Label>
-                <Input id="signup-name" placeholder="John Doe" value={signUpFullName} onChange={(e) => setSignUpFullName(e.target.value)} required />
+                <Input id="signup-name" placeholder="" value={signUpFullName} onChange={(e) => setSignUpFullName(e.target.value)} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-email">Email</Label>

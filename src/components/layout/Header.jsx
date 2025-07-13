@@ -27,7 +27,7 @@ const Header = () => {
     alt="logo"
     className="w-full h-full object-cover rounded-lg"
   />
-</div>
+            </div>
 
             <span className="text-2xl font-bold text-gray-900">EstiMate Pro</span>
           </Link>

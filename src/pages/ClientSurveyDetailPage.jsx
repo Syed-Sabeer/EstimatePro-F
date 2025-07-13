@@ -17,7 +17,7 @@ import { clientSurveyAPI } from '@/lib/api';
 import { 
   ArrowLeft, User, Phone, Home, Ruler, Calendar, Settings,
   MapPin, DollarSign, Clock, Loader2, CheckCircle, AlertCircle,
-  Camera, Eye, X, Download
+  Camera, Eye, X, Download, Info
 } from 'lucide-react';
 import { displayArea } from '@/lib/utils';
 
@@ -188,44 +188,137 @@ const ClientSurveyDetailPage = () => {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <User className="h-5 w-5 mr-2" />
-                  Client Information
+                  Client Contact Information
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Name</label>
-                    <p className="text-lg font-medium">{survey.client_name}</p>
+                    <label className="text-sm font-medium text-muted-foreground">Client Name</label>
+                    <p className="text-xl font-bold text-gray-900">{survey.client_name}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Phone</label>
-                    <p className="text-lg font-medium">{survey.client_phone}</p>
+                    <label className="text-sm font-medium text-muted-foreground">Contact Phone</label>
+                    <p className="text-xl font-bold text-blue-600">{survey.client_phone}</p>
+                  </div>
+                </div>
+                <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
+                    <span className="text-sm font-medium text-green-800">Ready for contact</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Project Details */}
+            {/* Project Summary */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Home className="h-5 w-5 mr-2" />
-                  Project Details
+                  Project Summary
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Bathroom Type</label>
-                    <p className="text-lg">{survey.bathroom_type}</p>
+                    <p className="text-lg font-medium">{survey.bathroom_type || 'Not specified'}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Tiling Level</label>
-                    <p className="text-lg">{survey.tiling_level}</p>
+                    <p className="text-lg font-medium">{survey.tiling_level || 'Not specified'}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Property Type</label>
+                    <p className="text-lg font-medium">{survey.property_type || 'Not specified'}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Home Age</label>
-                    <p className="text-lg">{survey.home_age_category}</p>
+                    <p className="text-lg font-medium">{survey.home_age_category || 'Not specified'}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Survey Questions & Answers */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <CheckCircle className="h-5 w-5 mr-2" />
+                  Survey Questions & Answers
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 gap-4">
+                  {/* Property Type */}
+                  <div className="border-b border-gray-100 pb-3">
+                    <label className="text-sm font-medium text-muted-foreground">Property Type</label>
+                    <p className="text-lg font-medium mt-1">
+                      {survey.property_type || 'Not specified'}
+                    </p>
+                  </div>
+                  
+                  {/* Home Age */}
+                  <div className="border-b border-gray-100 pb-3">
+                    <label className="text-sm font-medium text-muted-foreground">Age of Home</label>
+                    <p className="text-lg font-medium mt-1">
+                      {survey.home_age_category || 'Not specified'}
+                    </p>
+                  </div>
+                  
+                  {/* Tiling Level */}
+                  <div className="border-b border-gray-100 pb-3">
+                    <label className="text-sm font-medium text-muted-foreground">Tile Preference</label>
+                    <p className="text-lg font-medium mt-1">
+                      {survey.tiling_level === 'Budget' ? 'Budget - Tiles in wet areas only' : 
+                       survey.tiling_level === 'Standard' ? 'Standard - Tiles in wet areas PLUS certain areas as feature wall' : 
+                       survey.tiling_level === 'Premium' ? 'Premium - Floor to ceiling tiles' : 
+                       survey.tiling_level || 'Not specified'}
+                    </p>
+                  </div>
+                  
+                  {/* Include Tiles */}
+                  <div className="border-b border-gray-100 pb-3">
+                    <label className="text-sm font-medium text-muted-foreground">Would you like for the tiles to be included in the estimate?</label>
+                    <p className="text-lg font-medium mt-1">
+                      {survey.include_tiles === 'yes' ? 'Yes, please! - Include in the estimate' : 
+                       survey.include_tiles === 'no' ? 'No, thank you - I will supply my own tiles' : 'Not specified'}
+                    </p>
+                  </div>
+                  
+                  {/* Toilet Move */}
+                  <div className="border-b border-gray-100 pb-3">
+                    <label className="text-sm font-medium text-muted-foreground">Will the toilet stay where it is, or be moved?</label>
+                    <p className="text-lg font-medium mt-1">
+                      {survey.toilet_move === 'stay' ? 'Toilet will remain the same location' : 
+                       survey.toilet_move === 'move' ? 'Toilet will change location - Moving plumbing may affect estimate accuracy and require additional consultation' : 'Not specified'}
+                    </p>
+                  </div>
+                  
+                  {/* Wall Change */}
+                  <div className="border-b border-gray-100 pb-3">
+                    <label className="text-sm font-medium text-muted-foreground">Will you be knocking down or shifting a wall?</label>
+                    <p className="text-lg font-medium mt-1">
+                      {survey.wall_change === 'yes' ? 'Yes - Structural changes may require additional permits and engineering consultation' : 
+                       survey.wall_change === 'no' ? 'No' : 'Not specified'}
+                    </p>
+                  </div>
+                  
+                  {/* Bathroom Type */}
+                  <div className="border-b border-gray-100 pb-3">
+                    <label className="text-sm font-medium text-muted-foreground">Bathroom Type</label>
+                    <p className="text-lg font-medium mt-1">
+                      {survey.bathroom_type || 'Not specified'}
+                    </p>
+                  </div>
+                  
+                  {/* Design Style */}
+                  <div className="border-b border-gray-100 pb-3">
+                    <label className="text-sm font-medium text-muted-foreground">Design Style</label>
+                    <p className="text-lg font-medium mt-1">
+                      {survey.design_style || 'Not specified'}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -240,6 +333,18 @@ const ClientSurveyDetailPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Measurement Method */}
+                <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                  <label className="text-sm font-medium text-blue-900">Measurement Method</label>
+                  <p className="text-sm text-blue-700 mt-1">
+                    {survey.floor_length && survey.floor_width && survey.wall_height ? 
+                      'Individual measurements provided (Length × Width × Height)' :
+                      survey.total_area ? 
+                      'Total area provided directly' : 
+                      'Measurement method not specified'}
+                  </p>
+                </div>
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {survey.total_area && (
                     <div>
@@ -267,14 +372,20 @@ const ClientSurveyDetailPage = () => {
                   )}
                   {survey.calculated_floor_area && (
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Floor Area</label>
+                      <label className="text-sm font-medium text-muted-foreground">Calculated Floor Area</label>
                       <p className="text-lg">{displayArea(survey.calculated_floor_area)}</p>
                     </div>
                   )}
                   {survey.calculated_wall_area && (
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Wall Area</label>
+                      <label className="text-sm font-medium text-muted-foreground">Calculated Wall Area</label>
                       <p className="text-lg">{displayArea(survey.calculated_wall_area)}</p>
+                    </div>
+                  )}
+                  {survey.calculated_total_area && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Calculated Total Area</label>
+                      <p className="text-lg">{displayArea(survey.calculated_total_area)}</p>
                     </div>
                   )}
                 </div>
@@ -388,35 +499,73 @@ const ClientSurveyDetailPage = () => {
             </Card>
 
             {/* Estimates */}
-            {(survey.budget_area || survey.standard_area || survey.premium_area) && (
+            {(survey.budget_area || survey.standard_area || survey.premium_area || survey.base_estimate || survey.high_estimate) && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <DollarSign className="h-5 w-5 mr-2" />
-                    Area Estimates
+                    Estimates & Pricing
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {survey.budget_area && (
-                      <div className="text-center p-4 bg-blue-50 rounded-lg">
-                        <h4 className="font-medium text-blue-900">Budget</h4>
-                        <p className="text-2xl font-bold text-blue-600">{displayArea(survey.budget_area)}</p>
+                <CardContent className="space-y-4">
+                  {(survey.budget_area || survey.standard_area || survey.premium_area) && (
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-3">Area Estimates</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {survey.budget_area && (
+                          <div className="text-center p-4 bg-blue-50 rounded-lg">
+                            <h4 className="font-medium text-blue-900">Budget</h4>
+                            <p className="text-2xl font-bold text-blue-600">{displayArea(survey.budget_area)}</p>
+                          </div>
+                        )}
+                        {survey.standard_area && (
+                          <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                            <h4 className="font-medium text-yellow-900">Standard</h4>
+                            <p className="text-2xl font-bold text-yellow-600">{displayArea(survey.standard_area)}</p>
+                          </div>
+                        )}
+                        {survey.premium_area && (
+                          <div className="text-center p-4 bg-green-50 rounded-lg">
+                            <h4 className="font-medium text-green-900">Premium</h4>
+                            <p className="text-2xl font-bold text-green-600">{displayArea(survey.premium_area)}</p>
+                          </div>
+                        )}
                       </div>
-                    )}
-                    {survey.standard_area && (
-                      <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                        <h4 className="font-medium text-yellow-900">Standard</h4>
-                        <p className="text-2xl font-bold text-yellow-600">{displayArea(survey.standard_area)}</p>
+                    </div>
+                  )}
+                  
+                  {(survey.base_estimate || survey.high_estimate) && (
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-3">Price Estimates</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {survey.base_estimate && (
+                          <div className="text-center p-4 bg-orange-50 rounded-lg">
+                            <h4 className="font-medium text-orange-900">Base Estimate</h4>
+                            <p className="text-2xl font-bold text-orange-600">${survey.base_estimate?.toLocaleString()}</p>
+                          </div>
+                        )}
+                        {survey.high_estimate && (
+                          <div className="text-center p-4 bg-red-50 rounded-lg">
+                            <h4 className="font-medium text-red-900">High Estimate</h4>
+                            <p className="text-2xl font-bold text-red-600">${survey.high_estimate?.toLocaleString()}</p>
+                          </div>
+                        )}
                       </div>
-                    )}
-                    {survey.premium_area && (
-                      <div className="text-center p-4 bg-green-50 rounded-lg">
-                        <h4 className="font-medium text-green-900">Premium</h4>
-                        <p className="text-2xl font-bold text-green-600">{displayArea(survey.premium_area)}</p>
+                      <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div className="flex items-start">
+                          <Info className="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
+                          <div className="text-sm text-blue-800">
+                            <p className="font-medium mb-1">Estimate Calculation Method:</p>
+                            <ul className="text-xs space-y-1">
+                              <li>• Base estimate includes all applicable line items based on client selections</li>
+                              <li>• Builder's labour and access fees may be calculated as fixed prices or percentages of subtotal</li>
+                              <li>• High estimate adds 30% buffer for unknowns and variations</li>
+                            </ul>
+                          </div>
+                        </div>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}

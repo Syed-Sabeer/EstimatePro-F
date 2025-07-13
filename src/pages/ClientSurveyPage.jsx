@@ -30,13 +30,13 @@ const surveyConfig = {
       fields: [
         { 
           id: "measurement_type", type: "radio_toggle", options: [
-            { value: "direct", label: "Enter total size directly", sublabel: "If you know the total square meters" },
+            // { value: "direct", label: "Enter total size directly", sublabel: "If you know the total square meters" },
             { value: "calculate", label: "Let us calculate it for you", sublabel: "Enter individual measurements" },
             { value: "dimensions", label: "Enter dimensions directly", sublabel: "Enter length, width, and height" }
           ],
           width: "full"
         },
-        { id: "total_size", label: "Total Size (square meters) *", type: "text", placeholder: "e.g., 12.5", condition: { field: "measurement_type", value: "direct" }, width: "full" },
+        // { id: "total_size", label: "Total Size (square meters) *", type: "text", placeholder: "e.g., 12.5", condition: { field: "measurement_type", value: "direct" }, width: "full" },
         { id: "floor_length", label: "Floor Length (m) *", type: "text", placeholder: "e.g., 3.5", condition: { field: "measurement_type", value: "calculate" }, width: "half" },
         { id: "floor_width", label: "Floor Width (m) *", type: "text", placeholder: "e.g., 2.8", condition: { field: "measurement_type", value: "calculate" }, width: "half" },
         { id: "wall_height", label: "Wall Height (m) *", type: "text", placeholder: "e.g., 2.4", condition: { field: "measurement_type", value: "calculate" }, width: "half" },
