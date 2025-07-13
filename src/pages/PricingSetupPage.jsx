@@ -37,7 +37,7 @@ const PREDEFINED_PRICING_ITEMS = [
     id: 'demolition_labour',
     item_name: 'Demolition (labour)',
     estimate_options: 'All estimates',
-    price_type: 'Fixed price based on avg of days',
+    price_type: 'Fixed price estimate',
     category: 'Demolition'
   },
   {
@@ -99,7 +99,7 @@ const PREDEFINED_PRICING_ITEMS = [
   {
     id: 'niche_extra_cost',
     item_name: 'Niche extra cost + builder labour to frame',
-    estimate_options: 'If customer selects yes for niche',
+    estimate_options: 'All Estimates',
     price_type: 'Fixed price estimate',
     category: 'Tiling'
   },
@@ -118,6 +118,13 @@ const PREDEFINED_PRICING_ITEMS = [
     category: 'Consumables'
   },
   {
+    id: 'gap_filling_painting',
+    item_name: 'Gap filling & painting',
+    estimate_options: 'All estimates',
+    price_type: 'Fixed price estimate per room',
+    category: 'Finishes & Builder\'s labour'
+  },
+  {
     id: 'builder_labour',
     item_name: 'Builder\'s labour, project management & administration costs',
     estimate_options: 'All estimates',
@@ -133,13 +140,7 @@ const PREDEFINED_PRICING_ITEMS = [
     category: 'Finishes & Builder\'s labour',
     price_type_options: ['percentage', 'fixed']
   },
-  {
-    id: 'gap_filling_painting',
-    item_name: 'Gap filling & painting',
-    estimate_options: 'All estimates',
-    price_type: 'Fixed price estimate per room',
-    category: 'Finishes & Builder\'s labour'
-  },
+  
   {
     id: 'builder_labour_wall',
     item_name: 'Builder\'s labour for knocking down/shift wall',
