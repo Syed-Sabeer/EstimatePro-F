@@ -32,7 +32,7 @@ const surveyConfig = {
           id: "measurement_type", type: "radio_toggle", options: [
             // { value: "direct", label: "Enter total size directly", sublabel: "If you know the total square meters" },
             { value: "calculate", label: "Let us calculate it for you", sublabel: "Enter individual measurements" },
-            { value: "dimensions", label: "Enter dimensions directly", sublabel: "Enter length, width, and height" }
+            // { value: "dimensions", label: "Enter dimensions directly", sublabel: "Enter length, width, and height" }
           ],
           width: "full"
         },
@@ -41,9 +41,9 @@ const surveyConfig = {
         { id: "floor_width", label: "Floor Width (m) *", type: "text", placeholder: "e.g., 2.8", condition: { field: "measurement_type", value: "calculate" }, width: "half" },
         { id: "wall_height", label: "Wall Height (m) *", type: "text", placeholder: "e.g., 2.4", condition: { field: "measurement_type", value: "calculate" }, width: "half" },
         { id: "calculated_display", label: "Calculated Measurements", type: "calculated_display", condition: { field: "measurement_type", value: "calculate" }, width: "full" },
-        { id: "direct_length", label: "Length (m) *", type: "text", placeholder: "e.g., 3.5", condition: { field: "measurement_type", value: "dimensions" }, width: "half" },
-        { id: "direct_width", label: "Width (m) *", type: "text", placeholder: "e.g., 2.8", condition: { field: "measurement_type", value: "dimensions" }, width: "half" },
-        { id: "direct_height", label: "Height (m) *", type: "text", placeholder: "e.g., 2.4", condition: { field: "measurement_type", value: "dimensions" }, width: "half" }
+        // { id: "direct_length", label: "Length (m) *", type: "text", placeholder: "e.g., 3.5", condition: { field: "measurement_type", value: "dimensions" }, width: "half" },
+        // { id: "direct_width", label: "Width (m) *", type: "text", placeholder: "e.g., 2.8", condition: { field: "measurement_type", value: "dimensions" }, width: "half" },
+        // { id: "direct_height", label: "Height (m) *", type: "text", placeholder: "e.g., 2.4", condition: { field: "measurement_type", value: "dimensions" }, width: "half" }
       ]
     },
     {

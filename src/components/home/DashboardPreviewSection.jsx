@@ -171,7 +171,7 @@ const DashboardPreviewSection = () => {
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs uppercase tracking-wider">Client</th>
                   <th className="hidden md:table-cell text-left py-3 px-4 font-medium text-muted-foreground text-xs uppercase tracking-wider">Phone</th>
                   <th className="hidden lg:table-cell text-left py-3 px-4 font-medium text-muted-foreground text-xs uppercase tracking-wider">Area</th>
-                  <th className="hidden lg:table-cell text-left py-3 px-4 font-medium text-muted-foreground text-xs uppercase tracking-wider">Estimate</th>
+                  <th className="hidden lg:table-cell text-left py-3 px-4 font-medium text-muted-foreground text-xs uppercase tracking-wider">Estimate Range</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground text-xs uppercase tracking-wider">Status</th>
                   <th className="text-right py-3 px-4 font-medium text-muted-foreground text-xs uppercase tracking-wider">Actions</th>
                 </tr>
@@ -199,7 +199,7 @@ const DashboardPreviewSection = () => {
                         {survey.total_area ? displayArea(survey.total_area) : '-'}
                       </td>
                       <td className="hidden lg:table-cell py-3 px-4 text-muted-foreground whitespace-nowrap">
-                        {survey.base_estimate ? `$${survey.base_estimate?.toLocaleString()}` : '-'}
+                        {survey.base_estimate ? `$${survey.base_estimate?.toLocaleString()}` : '-'}   -    {survey.high_estimate ? `$${survey.high_estimate?.toLocaleString()}` : '-'}
                       </td>
                       <td className="py-3 px-4">
                         {user ? (
