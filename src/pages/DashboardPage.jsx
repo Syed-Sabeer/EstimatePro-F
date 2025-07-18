@@ -139,7 +139,7 @@ const RecentSurveysTable = ({ surveys, loading, onStatusUpdate, onDelete }) => {
                         {survey.total_area ? displayArea(survey.total_area) : '-'}
                       </td>
                       <td className="hidden md:table-cell py-3 px-4 text-muted-foreground whitespace-nowrap">
-                        {survey.base_estimate} - {survey.high_estimate}
+                        ${survey.base_estimate} - ${survey.high_estimate}
                       </td>
                       <td className="py-3 px-4">
                         <Select

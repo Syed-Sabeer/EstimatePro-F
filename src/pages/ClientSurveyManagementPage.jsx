@@ -278,7 +278,7 @@ const ClientSurveyManagementPage = () => {
                           {displayArea(survey.total_area)}
                         </td>
                         <td className="hidden lg:table-cell py-3 px-4 text-muted-foreground whitespace-nowrap">
-                          {survey.base_estimate} - {survey.high_estimate}
+                          ${survey.base_estimate} - ${survey.high_estimate}
                         </td>
                         <td className="py-3 px-4">
                           <Select
